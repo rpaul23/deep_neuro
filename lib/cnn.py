@@ -9,49 +9,65 @@ import tensorflow as tf
 import numpy as np
 
 def init_weights(shape, dist='random_normal', normalized=True):
+    """Initializes network weights.
+    
+    Args:
+        shape: A tensor. Shape of the weights.
+        dist: A str. Distribution at initialization, one of 'random_normal' or 
+            'truncated_normal'.
+        normalized: A boolean. Whether weights should be normalized.
+        
+    Returns:
+        A tf.variable.
+    """
+    # Normalized if normalized set to True
     if normalized == True:
         denom = np.prod(shape[:-1])
         std = 1 / denom
     else:
         std = .1
     
+    # Draw from random or truncated normal
     if dist == 'random_normal':
         weights = tf.random_normal(shape, stddev=std)
     elif dist == 'truncated_normal':
         weights = tf.truncated_normal(shape, stddev=0.1)
-        
+    
     return tf.Variable(weights)
 
 
 def init_biases(shape):
+    """Initialize biases. """
     biases = tf.constant(0., shape=shape)
     return tf.Variable(biases)
 
 
 def conv2d(x, W):
+    """2D convolution. """
     return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
 
 
 def max_pool(x):
+    """Max pooling. """
     return tf.nn.max_pool(x, ksize=[1, 1, 2, 1], strides=[1, 1, 2, 1], 
                           padding='SAME')
 
 
 def leaky_relu_layer(x_in, n_in, n_out, patch_dim, n_chans, n_samples,
                      weights_dist='random_normal', normalized_weights=True,
-                     keep_bias=0, is_first_layer=False):
-    """leaky_relu_layer creates a CNN layer using the LeakyReLU activation 
-    function.
+                     is_first_layer=False):
+    """Creates a CNN layer using the leaky ReLU non-linearity.
     
     Args:
         x_in: A tensor. Input neurons.
         n_in: An int. Number of input feature maps/channels.
         n_out: An int. Number of output feature maps/channels.
         patch_dim: A list of length 2. Dimensions of the convolution patch.
-        is_first_layer: A boolean. Whether layer is first layer or not.
+        n_chans: An int. Number of channels in the target area.
+        n_samples: An int. Number of samples per trial.
         weights_dist: A str. Init weights from random or truncated normal.
         normalized_weights: A boolean. Whether weights should be normalized.
-        keep_bias: Element {0, 1}. Whether to include biases or not.
+        is_first_layer: A boolean. Whether layer is first layer.
         
     Returns:
         A tensor of max-pooled feature maps.
@@ -65,7 +81,7 @@ def leaky_relu_layer(x_in, n_in, n_out, patch_dim, n_chans, n_samples,
         x_in = tf.reshape(x_in, [-1, n_chans, n_samples, 1])
         
     # Convolute and activate using Leaky ReLu
-    h_conv = tf.nn.leaky_relu(conv2d(x_in, W_conv) + keep_bias * b_conv)
+    h_conv = tf.nn.leaky_relu(conv2d(x_in, W_conv) + b_conv)
     
     # Return max_pooled layer(s)
     return max_pool(h_conv)
@@ -162,7 +178,25 @@ def create_network(n_layers, x_in, n_in, n_out, patch_dim, training, n_chans,
                    n_samples, weights_dist='random_normal', 
                    normalized_weights=True, nonlin='leaky_relu', 
                    bn=True):
-    """
+    """Creates arbritray number of hidden layers.
+    
+    Args:
+        n_layers: An int. Number of hidden layers in the network.
+        x_in: A tensor. Input neurons.
+        n_in: An int. Number of input feature maps/channels.
+        n_out: An int. Number of output feature maps/channels.
+        patch_dim: A list of length 2. Dimensions of the convolution patch.
+        training: A boolean. Indicates training (True) or test (False).
+        n_chans: An int. Number of channels/electrodes.
+        n_samples: An int. Number of samples in the data.
+        weights_dist: A str. Init weights from random or truncated normal.
+        normalized_weights: A boolean. Whether weights should be normalized.
+        nonlin: A str. One of 'leaky_relu' or 'elu'; non-linearity to use.
+        bn: A boolean. Indicating whether batch-norm. should be applied.
+        
+    Returns
+        curr_output: Output of the last layer.
+        weights: A dict of weights, one key/value pair per layer.
     """
     curr_in = x_in
     weights = {}
@@ -200,7 +234,17 @@ def create_network(n_layers, x_in, n_in, n_out, patch_dim, training, n_chans,
 
 
 def fully_connected(x_in, bn, units, nonlin='leaky_relu'):
-    """
+    """Adds fully connected layer.
+    
+    Args:
+        x_in: A tensor. Input layer.
+        bn: A boolean. Indicating whether batch-norm. should be applied.
+        units: An int. Number of output units.
+        nonlin: A str. One of 'leaky_relu' or 'elu'; non-linearity to use.
+        
+    Returns:
+        out: Fully-connected output layer.
+        weights: Weights for the output layer.
     """
     # Fully-connected layer (BN)
     shape_in = x_in.get_shape().as_list()
@@ -236,7 +280,17 @@ def fully_connected(x_in, bn, units, nonlin='leaky_relu'):
 
 
 def l2_loss(weights, l2_regularization_penalty, y_, y_conv, name):
-    """
+    """Implements L2 loss for an arbitrary number of weights.
+    
+    Args:
+        weights: A dict. One key/value pair per layer in the network.
+        l2_regularization_penalty: An int. Scales the l2 loss arbitrarily.
+        y_:
+        y_conv:
+        name: 
+            
+    Returns:
+        L2 loss.        
     """
     for key, value in weights.items():
         weights[key] = tf.nn.l2_loss(value)
