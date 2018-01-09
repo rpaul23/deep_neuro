@@ -11,7 +11,24 @@ import numpy as np
 
 def get_subset(file_path, target_area, raw_path, elec_type, return_nchans=False):
     """Gets prepocessed data for a given session and filters/subsets for the 
-    target area. """
+    target area.
+    
+    Args:
+        file_path: A str. Path to pre-processed data (*.npy).
+        target_area: A list. String(s) indicating the target area.
+        raw_path: A str. Path to the folder containing trial/recording info.
+        elec_type: A str. One of 'single' (use all electrodes within area as
+            single trials), 'grid' (use whole electrode grid), 'average' (mean
+            over all electrodes in area).
+        return_nchans: A boolean. Whether number of channels within area is
+            returned alongside the data.
+            
+    Returns:
+        data: The subsetted data for a given target area.
+        n_chans: Number of channels in the target area (optional; only returned
+            if return_nchans is set to True).
+    """
+    # Read pre-processed
     data = get_preprocessed(file_path)
     rinfo_path = raw_path + 'recording_info.mat'
     tinfo_path = raw_path + 'trial_info.mat'
@@ -38,15 +55,31 @@ def get_subset(file_path, target_area, raw_path, elec_type, return_nchans=False)
     else:
         raise ValueError('Type \'' + elec_type + '\' not supported. Please ' + 
                          'choose one of \'single\'|\'grid\'|\'average\'.')
-        
+    
+    # Also return n_chans if return_nchans is set to true else return data only
     if not return_nchans == True:
         return data
     else:
         return data, n_chans
 
 def get_targets(decode_for, raw_path, elec_type, n_chans):
+    """Gets behavioral responses or stimulus classes from the trial_info file
+    and encodes them as one-hot.
+    
+    Args:
+        decode_for: A str. One of 'stim' (stimulus classes) or 'resp' (behav. 
+            response), depending on which info to classify the data on.
+            (Defines number of classes: stim -> 5 classes, resp -> 2 classes)
+        raw_path: A str. Path to the trial_info file.
+        elec_type: A str. One of 'single' (use all electrodes within area as
+            single trials), 'grid' (use whole electrode grid), 'average' (mean
+            over all electrodes in area).
+        n_chans: An int. Number of channels in the target area.
+        
+    Returns:
+        Ndarray of one-hot targets.
     """
-    """
+    # Trial info holds behavioral responses and stimulus classes
     tinfo_path = raw_path + 'trial_info.mat'
     
     # Get behavioral responses or stimulus classes, depending on user input
@@ -83,7 +116,19 @@ def get_preprocessed(file_path):
 
 
 def get_roi(data, list_of_areas, rinfo_path, return_nchans=False):
-    """Subsets the data set and returns mean per area."""    
+    """Subsets the data to area of interest.
+    
+    Args:
+        data: An ndarray. Pre-processed data for a given session.
+        list_of_areas: A list. Str of target area(s).
+        rinfo_path: A str. Path to the recording_info file.
+        return_nchans: A boolean. Whether number of channels in target area is
+            to be returned.
+            
+    Returns:
+        data: An ndarray. Subsetted data.
+        n_chans: An int. Number of channels in the area of interest.
+    """    
     # Open file for given recording
     with h5py.File(rinfo_path, 'r') as f:
         rinfo = f.get('recording_info')
@@ -134,7 +179,7 @@ def get_roi(data, list_of_areas, rinfo_path, return_nchans=False):
 
 
 def get_responses(tinfo_path):
-    """get_responses gets the responses for a given session."""
+    """Gets the responses for all trials in a given session."""
     with h5py.File(tinfo_path, 'r') as f:
         # 'trial_info.mat' holds only 1 structure
         tinfo = f['trial_info']
@@ -144,7 +189,7 @@ def get_responses(tinfo_path):
 
 
 def get_samples(tinfo_path):
-    """Gets sample image classes for a given session. """
+    """Gets sample image classes for all trials in a given session. """
     with h5py.File(tinfo_path, 'r') as f:
         # 'trial_info.mat' holds only 1 structure
         tinfo = f['trial_info']
