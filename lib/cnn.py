@@ -5,8 +5,10 @@ Created on Mon Jan  8 15:20:30 2018
 
 @author: jannes
 """
+
 import tensorflow as tf
 import numpy as np
+
 
 def init_weights(shape, dist='random_normal', normalized=True):
     """Initializes network weights.
