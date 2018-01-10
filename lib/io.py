@@ -151,27 +151,23 @@ def get_roi(data, list_of_areas, rinfo_path, return_nchans=False):
             list_of_areas = [list_of_areas]
         
         # For number of areas in list_of_areas
-        l = []
-        for area in list_of_areas:
+        #l = []
+        #for area in list_of_areas:
             # Get target electrodes
-            target_indices = [count for count, name in enumerate(area_names) 
-                              if name in list_of_areas]
-            target_channels = [c_nums[i] for i in target_indices]
-            
-            # Get indices of target electrodes
-            idx = []
-            for count, ch in enumerate(c_nums):
-                if ch in target_channels:
-                    idx.append(count)
-                    
-            # Subset data
-            curr_area = data[:, idx, :]
-            l.append(curr_area)
+        target_indices = [count for count, name in enumerate(area_names) 
+                          if name in list_of_areas]
+        target_channels = [c_nums[i] for i in target_indices]
         
-        data = np.array(l)
-        #data = np.swapaxes(data, 0, 2)
-        data = np.squeeze(data, axis=0)
-        
+        # Get indices of target electrodes
+        idx = []
+        for count, ch in enumerate(c_nums):
+            if ch in target_channels:
+                idx.append(count)
+                
+        # Subset data
+        data = data[:, idx, :]
+
+        #data = np.array(curr_area)
         if not return_nchans == True:
             return data 
         else:
