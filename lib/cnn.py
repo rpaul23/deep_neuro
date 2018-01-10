@@ -49,9 +49,13 @@ def conv2d(x, W):
     return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
 
 
-def max_pool(x):
+def max_pool(x, pool_dim):
     """Max pooling. """
-    return tf.nn.max_pool(x, ksize=[1, 1, 2, 1], strides=[1, 1, 2, 1], 
+    patch_height = pool_dim[0]
+    patch_width = pool_dim[1]
+    return tf.nn.max_pool(x, 
+                          ksize=[1, patch_height, patch_width, 1], 
+                          strides=[1, patch_height, patch_width, 1], 
                           padding='SAME')
 
 
@@ -89,7 +93,7 @@ def leaky_relu_layer(x_in, n_in, n_out, patch_dim, n_chans, n_samples,
     return max_pool(h_conv)
 
 
-def leaky_relu_batch(x_in, n_in, n_out, patch_dim, training, n_chans, 
+def leaky_relu_batch(x_in, n_in, n_out, patch_dim, pool_dim, training, n_chans, 
                      n_samples, weights_dist='random_normal', 
                      normalized_weights=True, is_first_layer=False, bn=True):
     """Applies batch normalization from tf.contrib.layers after the ReLu.
@@ -99,6 +103,7 @@ def leaky_relu_batch(x_in, n_in, n_out, patch_dim, training, n_chans,
         n_in: An int. Number of input feature maps/channels.
         n_out: An int. Number of output feature maps/channels.
         patch_dim: A list of length 2. Dimensions of the convolution patch.
+        pool_dim: A list of length 2. Dimensions of the pooling patch.
         training: A boolean. Indicates training (True) or test (False).
         n_chans: An int. Number of channels/electrodes.
         n_samples: An int. Number of samples in the data.
@@ -126,15 +131,15 @@ def leaky_relu_batch(x_in, n_in, n_out, patch_dim, training, n_chans,
                 center=True,
                 scale=True,
                 is_training=training)
-        maxp_bn_relu = max_pool(cnn_bn_relu)
+        maxp_bn_relu = max_pool(cnn_bn_relu, pool_dim)
     else:
-        maxp_bn_relu = max_pool(cnn_relu)
+        maxp_bn_relu = max_pool(cnn_relu, pool_dim)
     
     return maxp_bn_relu, weights
 
 
-def elu_batch(x_in, n_in, n_out, patch_dim, training, n_chans, n_samples, 
-              weights_dist='random_normal', normalized_weights=True, 
+def elu_batch(x_in, n_in, n_out, patch_dim, pool_dim, training, n_chans, 
+              n_samples, weights_dist='random_normal', normalized_weights=True, 
               is_first_layer=False, bn=True):
     """Applies batch normalization from tf.contrib.layers after the ELU.
     
@@ -143,6 +148,7 @@ def elu_batch(x_in, n_in, n_out, patch_dim, training, n_chans, n_samples,
         n_in: An int. Number of input feature maps/channels.
         n_out: An int. Number of output feature maps/channels.
         patch_dim: A list of length 2. Dimensions of the convolution patch.
+        pool_dim: A list of length 2. Dimensions of the pooling patch.
         training: A boolean. Indicates training (True) or test (False).
         n_chans: An int. Number of channels/electrodes.
         n_samples: An int. Number of samples in the data.
@@ -170,14 +176,14 @@ def elu_batch(x_in, n_in, n_out, patch_dim, training, n_chans, n_samples,
                 center=True,
                 scale=True,
                 is_training=training)
-        maxp_bn_elu = max_pool(cnn_bn_elu)
+        maxp_bn_elu = max_pool(cnn_bn_elu, pool_dim)
     else:
-        maxp_bn_elu = max_pool(cnn_elu)
+        maxp_bn_elu = max_pool(cnn_elu, pool_dim)
     
     return maxp_bn_elu, weights
 
-def create_network(n_layers, x_in, n_in, n_out, patch_dim, training, n_chans, 
-                   n_samples, weights_dist='random_normal', 
+def create_network(n_layers, x_in, n_in, n_out, patch_dim, pool_dim, training, 
+                   n_chans, n_samples, weights_dist='random_normal', 
                    normalized_weights=True, nonlin='leaky_relu', 
                    bn=True):
     """Creates arbritray number of hidden layers.
@@ -188,6 +194,7 @@ def create_network(n_layers, x_in, n_in, n_out, patch_dim, training, n_chans,
         n_in: An int. Number of input feature maps/channels.
         n_out: An int. Number of output feature maps/channels.
         patch_dim: A list of length 2. Dimensions of the convolution patch.
+        pool_dim: A list of length 2. Dimensions of the pooling patch.
         training: A boolean. Indicates training (True) or test (False).
         n_chans: An int. Number of channels/electrodes.
         n_samples: An int. Number of samples in the data.
@@ -211,6 +218,7 @@ def create_network(n_layers, x_in, n_in, n_out, patch_dim, training, n_chans,
                     n_in=n_in[i], 
                     n_out=n_out[i],
                     patch_dim=patch_dim,
+                    pool_dim=pool_dim,
                     training=training,
                     n_chans=n_chans,
                     n_samples=n_samples,
@@ -221,6 +229,7 @@ def create_network(n_layers, x_in, n_in, n_out, patch_dim, training, n_chans,
                     n_in=n_in[i], 
                     n_out=n_out[i],
                     patch_dim=patch_dim,
+                    pool_dim=pool_dim,
                     training=training,
                     n_chans=n_chans,
                     n_samples=n_samples,

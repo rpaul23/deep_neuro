@@ -28,31 +28,32 @@ import lib.helpers as hlp
 # global params
 sess_no = '141023'
 interval = 'sample'
-target_area = 'V1'
+target_area = ['V1', 'V2']
 decode_for = 'stim'  # 'resp' for behav resp, 'stim' for stimulus class
 elec_type = 'grid' # any one of single|grid|average
 
 # hyper params
-size_of_batches = 50
 n_iterations = 100
+size_of_batches = 50
 dist = 'random_normal'
 batch_norm = 'after'
 nonlin = 'elu'
 normalized_weights = True
-learning_rate = 1e-6
-l2_regularization_penalty = 5
-keep_prob_train = .5
+learning_rate = 1e-5
+l2_regularization_penalty = 10
+keep_prob_train = .1
 
 # layer dimensions
 n_layers = 6
-patch_dim = [1, 2]  # 1xN patch
-in1, out1 = 1, 2
-in2, out2 = 2, 4
-in3, out3 = 4, 8
-in4, out4 = 8, 16
-in5, out5 = 16, 64
-in6, out6 = 64, 256
-fc_units = 100
+patch_dim = [1, 5]  # 1xN patch
+pool_dim = [1, 2]
+in1, out1 = 1, 3
+in2, out2 = 3, 6
+in3, out3 = 6, 12
+in4, out4 = 12, 36
+in5, out5 = 36, 72
+in6, out6 = 72, 256
+fc_units = 200
 channels_in = [in1, in2, in3, in4, in5, in6][:n_layers]
 channels_out = [out1, out2, out3, out4, out5, out6][:n_layers]
 
@@ -112,7 +113,8 @@ out_bn, weights_bn = cnn.create_network(
         x_in=x, 
         n_in=channels_in, 
         n_out=channels_out, 
-        patch_dim=patch_dim, 
+        patch_dim=patch_dim,
+        pool_dim=pool_dim,
         training=training, 
         n_chans=n_chans,
         n_samples=samples_per_trial,
@@ -126,7 +128,8 @@ out, weights = cnn.create_network(
         x_in=x, 
         n_in=channels_in, 
         n_out=channels_out, 
-        patch_dim=patch_dim, 
+        patch_dim=patch_dim,
+        pool_dim=pool_dim,
         training=training, 
         n_chans=n_chans,
         n_samples=samples_per_trial,
@@ -242,16 +245,18 @@ with tf.Session() as sess:
 # Store params and accuracy in file
 time = str(datetime.datetime.now())
 data = [acc, acc_bn, n_iterations, size_of_batches, l2_regularization_penalty,
-        learning_rate, str(patch_dim), str(channels_out), fc_units, dist, 
-        batch_norm, nonlin, str(target_area), normalized_weights, 
-        train_accuracy, train_accuracy_bn, keep_prob_train, n_layers, time]
+        learning_rate, str(patch_dim), str(pool_dim), str(channels_out), 
+        fc_units, dist, batch_norm, nonlin, str(target_area), 
+        normalized_weights, train_accuracy, train_accuracy_bn, keep_prob_train, 
+        n_layers, time]
 df = pd.DataFrame([data], 
                   columns=['acc (no BN)', 'acc (BN)', 'iterations',
                            'batch size', 'l2 penalty', 'learning rate',
-                           'patch dim', 'output channels', 'fc_units', 'dist',
-                           'time of BN', 'nonlinearity', 'area', 'std',
-                           'train_accuracy', 'train_accuracy_bn', 'keep_prob',
-                           'n_layers', 'time'],
+                           'patch dim', 'pool_dim', 'output channels', 
+                           'fc_units', 'dist', 'time of BN', 'nonlinearity', 
+                           'area', 'std', 'train_accuracy', 
+                           'train_accuracy_bn', 'keep_prob', 'n_layers', 
+                           'time'],
                   index=[0])
 with open('/home/jannes/dat/results/accuracy/' + 
           sess_no + '_acc_' + decode_for + '_' + interval + '.csv', 'a') as f:
