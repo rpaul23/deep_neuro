@@ -9,7 +9,8 @@ import h5py
 import numpy as np
 
 
-def get_subset(file_path, target_area, raw_path, elec_type, return_nchans=False):
+def get_subset(file_path, target_area, raw_path, elec_type, 
+               return_nchans=False, only_correct_trials=False):
     """Gets prepocessed data for a given session and filters/subsets for the 
     target area.
     
@@ -22,6 +23,8 @@ def get_subset(file_path, target_area, raw_path, elec_type, return_nchans=False)
             over all electrodes in area).
         return_nchans: A boolean. Whether number of channels within area is
             returned alongside the data.
+        only_correct_trials: A boolean. Indicating whether to subset for 
+            trials with correct behavioral response only.
             
     Returns:
         data: The subsetted data for a given target area.
@@ -39,6 +42,12 @@ def get_subset(file_path, target_area, raw_path, elec_type, return_nchans=False)
     # Get responses and keep only trials with non-NA responses
     responses = get_responses(tinfo_path)
     ind_to_keep = (responses == responses).flatten()
+    
+    # If only_correct_trials set to True, drop all incorrect trials
+    if only_correct_trials == True:
+        ind_to_keep = (responses == 1).flatten()
+        
+    # Subset data
     data = data[ind_to_keep]
     
     # If elec_type == 'single' we want to make every electrode in an area their
@@ -62,7 +71,8 @@ def get_subset(file_path, target_area, raw_path, elec_type, return_nchans=False)
     else:
         return data, n_chans
 
-def get_targets(decode_for, raw_path, elec_type, n_chans):
+def get_targets(decode_for, raw_path, elec_type, n_chans, 
+                only_correct_trials=True):
     """Gets behavioral responses or stimulus classes from the trial_info file
     and encodes them as one-hot.
     
@@ -75,6 +85,8 @@ def get_targets(decode_for, raw_path, elec_type, n_chans):
             single trials), 'grid' (use whole electrode grid), 'average' (mean
             over all electrodes in area).
         n_chans: An int. Number of channels in the target area.
+        only_correct_trials: A boolean. Indicating whether to subset for 
+            trials with correct behavioral response only.
         
     Returns:
         Ndarray of one-hot targets.
@@ -96,6 +108,12 @@ def get_targets(decode_for, raw_path, elec_type, n_chans):
     
     # Only keep non-NA targets
     ind_to_keep = (targets == targets).flatten()
+    
+    # If only_correct_trials set to True, drop targets for all incorrect trials
+    if only_correct_trials == True:
+        responses = get_responses(tinfo_path)
+        ind_to_keep = (responses == 1).flatten()
+    
     targets = targets[ind_to_keep].astype(int)
     
     # If every electrode (in an area) shall be regarded as their own trials,
