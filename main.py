@@ -31,6 +31,7 @@ interval = 'sample'
 target_area = ['V1', 'V2']
 decode_for = 'stim'  # 'resp' for behav resp, 'stim' for stimulus class
 elec_type = 'grid' # any one of single|grid|average
+only_correct_trials = False  # if pre-sample, only look at correct trials
 
 # hyper params
 n_iterations = 100
@@ -40,11 +41,11 @@ batch_norm = 'after'
 nonlin = 'elu'
 normalized_weights = True
 learning_rate = 1e-5
-l2_regularization_penalty = 10
-keep_prob_train = .1
+l2_regularization_penalty = 5
+keep_prob_train = .5
 
 # layer dimensions
-n_layers = 6
+n_layers = 7
 patch_dim = [1, 5]  # 1xN patch
 pool_dim = [1, 2]
 in1, out1 = 1, 3
@@ -53,9 +54,10 @@ in3, out3 = 6, 12
 in4, out4 = 12, 36
 in5, out5 = 36, 72
 in6, out6 = 72, 256
+in7, out7 = 256, 500
 fc_units = 200
-channels_in = [in1, in2, in3, in4, in5, in6][:n_layers]
-channels_out = [out1, out2, out3, out4, out5, out6][:n_layers]
+channels_in = [in1, in2, in3, in4, in5, in6, in7][:n_layers]
+channels_out = [out1, out2, out3, out4, out5, out6, out7][:n_layers]
 
 
 #########
@@ -79,8 +81,10 @@ classes = 2 if decode_for == 'resp' else 5
 
 # Load data and targets
 data, n_chans = io.get_subset(file_path, target_area, raw_path, elec_type, 
-                              return_nchans=True)    
-targets = io.get_targets(decode_for, raw_path, elec_type, n_chans)
+                              return_nchans=True, 
+                              only_correct_trials=only_correct_trials)
+targets = io.get_targets(decode_for, raw_path, elec_type, n_chans,
+                         only_correct_trials=only_correct_trials)
 
 # train/test params
 samples_per_trial = data.shape[2]
@@ -209,11 +213,13 @@ with tf.Session() as sess:
         
         # Training
         # without BN
-        train_step.run(feed_dict={
-                x: train[indices,:,:], 
-                y_: train_labels[indices,:],
-                keep_prob: keep_prob_train
-                })
+# =============================================================================
+#         train_step.run(feed_dict={
+#                 x: train[indices,:,:], 
+#                 y_: train_labels[indices,:],
+#                 keep_prob: keep_prob_train
+#                 })
+# =============================================================================
         # with BN
         train_step_bn.run(feed_dict={
                 x: train[indices,:,:], 
@@ -241,22 +247,23 @@ with tf.Session() as sess:
 #################
 # DOCUMENTATION #
 #################
-
+acc = 0
+train_accuracy = 0
 # Store params and accuracy in file
 time = str(datetime.datetime.now())
 data = [acc, acc_bn, n_iterations, size_of_batches, l2_regularization_penalty,
         learning_rate, str(patch_dim), str(pool_dim), str(channels_out), 
         fc_units, dist, batch_norm, nonlin, str(target_area), 
-        normalized_weights, train_accuracy, train_accuracy_bn, keep_prob_train, 
-        n_layers, time]
+        normalized_weights, only_correct_trials, train_accuracy, 
+        train_accuracy_bn, keep_prob_train, n_layers, time]
 df = pd.DataFrame([data], 
                   columns=['acc (no BN)', 'acc (BN)', 'iterations',
                            'batch size', 'l2 penalty', 'learning rate',
                            'patch dim', 'pool_dim', 'output channels', 
-                           'fc_units', 'dist', 'time of BN', 'nonlinearity', 
-                           'area', 'std', 'train_accuracy', 
-                           'train_accuracy_bn', 'keep_prob', 'n_layers', 
-                           'time'],
+                           'fc_units', 'dist', 'only_correct_trials', 
+                           'time of BN', 'nonlinearity', 'area', 'std', 
+                           'train_accuracy', 'train_accuracy_bn', 'keep_prob', 
+                           'n_layers', 'time'],
                   index=[0])
 with open('/home/jannes/dat/results/accuracy/' + 
           sess_no + '_acc_' + decode_for + '_' + interval + '.csv', 'a') as f:
