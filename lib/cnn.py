@@ -79,7 +79,9 @@ def leaky_relu_layer(x_in, n_in, n_out, patch_dim, n_chans, n_samples,
         A tensor of max-pooled feature maps.
     """
     # Initialize weights and biasesaccuracy
-    W_conv = init_weights([patch_dim[0], patch_dim[1], n_in, n_out])
+    W_conv = init_weights([patch_dim[0], patch_dim[1], n_in, n_out],
+                          dist=weights_dist,
+                          normalized=normalized_weights)
     b_conv = init_biases([n_out])
     
     # Only first layer has to be reshaped into 4d tensor
@@ -119,7 +121,9 @@ def leaky_relu_batch(x_in, n_in, n_out, patch_dim, pool_dim, training, n_chans,
     # Reshape if first layer, init weights
     if is_first_layer == True:
         x_in = tf.reshape(x_in, [-1, n_chans, n_samples, 1])
-    weights = init_weights([patch_dim[0], patch_dim[1], n_in, n_out])
+    weights = init_weights([patch_dim[0], patch_dim[1], n_in, n_out],
+                          dist=weights_dist,
+                          normalized=normalized_weights)
     
     # Batch-nomalize layer output (after ReLU)
     cnn = conv2d(x_in, weights)
@@ -164,7 +168,9 @@ def elu_batch(x_in, n_in, n_out, patch_dim, pool_dim, training, n_chans,
     # Reshape if first layer, init weights
     if is_first_layer == True:
         x_in = tf.reshape(x_in, [-1, n_chans, n_samples, 1])
-    weights = init_weights([patch_dim[0], patch_dim[1], n_in, n_out])
+    weights = init_weights([patch_dim[0], patch_dim[1], n_in, n_out],
+                          dist=weights_dist,
+                          normalized=normalized_weights)
     
     # Batch-nomalize layer output (after ReLU)
     cnn = conv2d(x_in, weights)
@@ -222,6 +228,8 @@ def create_network(n_layers, x_in, n_in, n_out, patch_dim, pool_dim, training,
                     training=training,
                     n_chans=n_chans,
                     n_samples=n_samples,
+                    weights_dist=weights_dist,
+                    normalized_weights=normalized_weights,
                     is_first_layer=is_first_layer)
         elif nonlin=='elu':
              curr_output, curr_weights = elu_batch(
@@ -233,6 +241,8 @@ def create_network(n_layers, x_in, n_in, n_out, patch_dim, pool_dim, training,
                     training=training,
                     n_chans=n_chans,
                     n_samples=n_samples,
+                    weights_dist=weights_dist,
+                    normalized_weights=normalized_weights,
                     is_first_layer=is_first_layer)
         else:
             raise ValueError('Non-linearity "' + nonlin + '" not supported.')
@@ -244,7 +254,8 @@ def create_network(n_layers, x_in, n_in, n_out, patch_dim, pool_dim, training,
     return curr_output, weights
 
 
-def fully_connected(x_in, bn, units, nonlin='leaky_relu'):
+def fully_connected(x_in, bn, units, nonlin='leaky_relu', 
+                    weights_dist='random_normal', normalized_weights=True):
     """Adds fully connected layer.
     
     Args:
@@ -260,7 +271,9 @@ def fully_connected(x_in, bn, units, nonlin='leaky_relu'):
     # Fully-connected layer (BN)
     shape_in = x_in.get_shape().as_list()
     dim = shape_in[1] * shape_in[2] * shape_in[3]
-    weights = init_weights([dim, units])
+    weights = init_weights([dim, units],
+                          dist=weights_dist,
+                          normalized=normalized_weights)
     flat = tf.reshape(x_in, [-1, dim])
     h_conv = tf.matmul(flat, weights)
     
@@ -311,3 +324,11 @@ def l2_loss(weights, l2_regularization_penalty, y_, y_conv, name):
     unregularized_loss = tf.reduce_mean(
             tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y_conv))
     return tf.add(unregularized_loss, l2_loss, name=name)
+
+def softmax_regression(x_in, classes):
+    """Implements a simple softmax regression. """
+    W = tf.Variable(tf.zeros([x_in.shape[1], classes]))
+    b = tf.Variable(tf.zeros(classes))
+    y = tf.nn.softmax(tf.matmul(x_in, W) + b)
+    
+    return y
