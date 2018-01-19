@@ -325,6 +325,7 @@ def l2_loss(weights, l2_regularization_penalty, y_, y_conv, name):
             tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y_conv))
     return tf.add(unregularized_loss, l2_loss, name=name)
 
+
 def softmax_regression(x_in, classes):
     """Implements a simple softmax regression. """
     W = tf.Variable(tf.zeros([x_in.shape[1], classes]))

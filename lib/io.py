@@ -169,9 +169,6 @@ def get_roi(data, list_of_areas, rinfo_path, return_nchans=False):
             list_of_areas = [list_of_areas]
         
         # For number of areas in list_of_areas
-        #l = []
-        #for area in list_of_areas:
-            # Get target electrodes
         target_indices = [count for count, name in enumerate(area_names) 
                           if name in list_of_areas]
         target_channels = [c_nums[i] for i in target_indices]

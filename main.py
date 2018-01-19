@@ -1,14 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Mon Jan 15 15:25:16 2018
-
-@author: jannes
-"""
-
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
 Created on Fri Dec  1 15:01:26 2017
 
 @author: jannes
@@ -30,20 +22,20 @@ import lib.cnn as cnn
 import lib.helpers as hlp
 
 
-
-
 # Add a few lines to have the program run over multiple areas and datasets.
 # Load file of areas, get the last, then save new list to file to call on
 # next iteration
 with open('/home/jannes/dat/scripts/areas_temp.txt', 'rb') as f:
-    areas = np.loadtxt(f, dtype='object')
+    areas = np.loadtxt(f, dtype='object', delimiter='\n')
 areas = areas.tolist()
-curr_area = areas.pop()
+curr_area = eval(areas.pop())
 areas = np.array(areas)
 with open('/home/jannes/dat/scripts/areas_temp.txt', 'wb') as f:
     np.savetxt(f, areas, fmt='%s')
+    
 # Define the intervals to loop over    
-intervals = ['delay_500', 'pre-match_500', 'match_500']
+intervals = ['pre-match_500']
+#curr_area = ['V2', 'LIP', 'V1']
 for curr_int in intervals:
     for i in range(10):
         print('Iteration {}, area {}:'.format(i+1, curr_area))
@@ -57,7 +49,7 @@ for curr_int in intervals:
         sess_no = '141023'
         interval = curr_int  # 'sample_500'
         target_area = curr_area
-        decode_for = 'stim'  # 'resp' for behav resp, 'stim' for stimulus class
+        decode_for = 'resp'  # 'resp' for behav resp, 'stim' for stimulus class
         elec_type = 'grid' # any one of single|grid|average
         only_correct_trials = False  # if pre-sample, only look at correct trials
         
@@ -69,11 +61,11 @@ for curr_int in intervals:
         nonlin = 'elu'
         normalized_weights = True
         learning_rate = 1e-5
-        l2_regularization_penalty = 5
-        keep_prob_train = .5
+        l2_regularization_penalty = 20
+        keep_prob_train = .1
         
         # layer dimensions
-        n_layers = 7
+        n_layers = 6
         patch_dim = [1, 5]  # 1xN patch
         pool_dim = [1, 2]
         in1, out1 = 1, 3
@@ -179,7 +171,7 @@ for curr_int in intervals:
         # Readout
         weights[n_layers+1] = cnn.init_weights([fc_units, classes])
         y_conv = tf.matmul(fc1_drop, weights[n_layers+1])
-        
+        weights_shape = [tf.shape(el) for el in weights.values()]
         
         #############
         # OPTIMIZER #
@@ -255,6 +247,9 @@ for curr_int in intervals:
                     y_reg: test_labels[ind,:].reshape(len(ind), -1)
                     })
             print('test accuracy: CNN %g, Regression %g' % (acc, acc_reg))
+            
+            # Get size of weights
+            size_weights = sess.run(weights_shape)
         
         
         #################
@@ -267,15 +262,16 @@ for curr_int in intervals:
         data = [acc_reg, acc, n_iterations, size_of_batches, l2_regularization_penalty,
                 learning_rate, str(patch_dim), str(pool_dim), str(channels_out), 
                 fc_units, dist, batch_norm, nonlin, str(target_area), 
-                normalized_weights, only_correct_trials, 0, train_accuracy, 
-                keep_prob_train, n_layers, time]
+                normalized_weights, only_correct_trials, 0, 
+                train_accuracy, keep_prob_train, n_layers, time, size_weights]
         df = pd.DataFrame([data], 
                           columns=['acc_reg', 'acc', 'iterations', 'batch size', 'l2 penalty', 
                                    'learning rate', 'patch dim', 'pool_dim', 
                                    'output channels', 'fc_units', 'dist', 
                                    'time of BN', 'nonlinearity', 'area','std', 
-                                   'only_correct_trials', '', 'train_accuracy', 
-                                   'keep_prob', 'n_layers', 'time'],
+                                   'only_correct_trials', '', 
+                                   'train_accuracy', 'keep_prob', 'n_layers', 
+                                   'time', 'size_weights'],
                           index=[0])
         
         # Save to file
