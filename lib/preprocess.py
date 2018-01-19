@@ -52,7 +52,7 @@ def drop_lead(raw, srate, onset, start=-100):
     return raw[:,new_start:]
 
 
-def drop_trail(raw, srate, trial_length=1400):
+def drop_trail(raw, srate, length=1400):
     """Cuts off every trial at a certain treshold (by default: 100 ms pre + 
     500 ms sample + 800 ms delay = 1400 ms).
     
@@ -65,7 +65,7 @@ def drop_trail(raw, srate, trial_length=1400):
         An ndarray of the sliced data.
     """
     samples_per_ms = srate/1000
-    no_of_samples = int(np.floor(trial_length * samples_per_ms))
+    no_of_samples = int(np.floor(length * samples_per_ms))
     return raw[:,:no_of_samples]
 
 

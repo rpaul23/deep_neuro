@@ -9,9 +9,11 @@ import lib.preprocess as pp
 sessions = ['141014', '141015', '141016', '141017', '141023']
 for sess in sessions:
     sess_no = sess
-    align_on = 'match'  # choose to align on either stimulus or match onset
-    pre = -400
-    post = 0
+    align_on = 'match'  # choose to align on either 'stim' or 'match' onset
+    save_in_folder = 'match_100'
+    start = 0
+    stop = 100
+    trial_length = 100
     
     # Filter params
     lowcut = 5
@@ -22,10 +24,9 @@ for sess in sessions:
     session_path = '/media/jannes/disk2/raw/' + sess_no + '/session01/'
     rinfo_path = session_path + 'recording_info.mat'
     tinfo_path = session_path + 'trial_info.mat'
-    path_out = '/media/jannes/disk2/pre-processed/pre-match/'
+    path_out = '/media/jannes/disk2/pre-processed/' + save_in_folder + '/'
     
     # Slicing params
-    trial_length = abs(pre) + abs(post)
     srate = io.get_sfreq(rinfo_path)
     no_of_trials = io.get_number_of_trials(tinfo_path)
     highest_filename = int(max(io.get_trial_ids(session_path)))
@@ -59,7 +60,7 @@ for sess in sessions:
                                  rinfo_path, 
                                  tinfo_path, 
                                  onset, 
-                                 start=pre, 
+                                 start=start, 
                                  length=trial_length)
             temp = pp.butter_bandpass_filter(temp, 
                                              lowcut, 
