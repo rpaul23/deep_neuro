@@ -25,16 +25,18 @@ def channelnumbers(rinfo_path):
     return channelnumbers
     
 
-def areanames(rinfo_path, unique=True):
-    """Loads all area names recorded from in a given session. 
+def areanames(rinfo_path, unique=True, as_list=False):
+    """Loads all area names recorded in a given session. 
     
     Args:
         rinfo_path: A str. Path to the recording_info file.
         unique: A boolean. Returns unique values by default, if set to False,
             instead returns list of area names (one per electrode).
+        as_list: A boolean. Return list if set to True.
             
     Returns:
-        An ndarray of areanames, either unique values or one per electrode.
+        An ndarray of areanames, either unique values or one per electrode;
+        optionally returns a list if as_list is set to True.
     """
     # Open file for given recording
     with h5py.File(rinfo_path, 'r') as f:
@@ -48,11 +50,16 @@ def areanames(rinfo_path, unique=True):
                 curr_idx = area[i][j]
                 curr_area = rinfo[curr_idx]
                 curr_str = ''.join(chr(k) for k in curr_area[:])
-                areanames.append(curr_str)    
+                areanames.append(curr_str)
     
-    # If unique is True, then return list of unique values, then return
+    # Convert to ndarray
+    areanames = np.array(areanames)
+    
+    # If unique is True, return only unique values, optionally as list
     if unique == True:
         areanames = np.unique(areanames)
+        if as_list == True:
+            areanames = areanames.tolist()
     return areanames
 
     
@@ -71,7 +78,6 @@ def targetchannels(list_of_areas, rinfo_path, return_nchans=False):
     """    
     # Get area names and channel numbers
     area_names = areanames(rinfo_path, unique=False)
-    c_nums = channelnumbers(rinfo_path)
     
     # Convert to list if input is str/int
     if not isinstance(list_of_areas, list):
@@ -80,15 +86,9 @@ def targetchannels(list_of_areas, rinfo_path, return_nchans=False):
     # For number of areas in list_of_areas
     target_indices = [count for count, name in enumerate(area_names) 
                       if name in list_of_areas]
-    target_channels = [c_nums[i] for i in target_indices]
     
-    # Get indices of target electrodes and return them.
     # If return_nchans set to True, also return number of channels in ROI.
-    idx = []
-    for count, ch in enumerate(c_nums):
-        if ch in target_channels:
-            idx.append(count)
     if not return_nchans == True:
-        return idx 
+        return target_indices 
     else:
-        return idx, len(idx)
+        return target_indices, len(target_indices)
