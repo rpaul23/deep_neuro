@@ -18,6 +18,7 @@ else:
     from . import frommatlab as fmat
     from . import helpers as hlp
 
+
 def elecs_by_area(list_of_areas, coords_path, rinfo_path, rotate=True):
     """Plots electrodes for a given set of target areas onto a map. """
      # Load and subset coords
@@ -84,9 +85,11 @@ def elecs_wholebrain(coords_path, rinfo_path, rotate=True, by_significance=False
     ax.legend()
     plt.show()
     
+    
 def plot_jpg(path):
     img = imageio.imread(path)
     plt.imshow(img)
+    
     
 def plot_area(coords, color):
     """Gets coords from all_flatmap_areas.mat and plots them."""
@@ -101,9 +104,10 @@ def color_map(df):
     """Takes df of area means as input and returns colormap."""
     colors = plt.cm.afmhot((df['mean'] * 255).astype(int))
     for i in range(len(colors)):
-        colors[i,-1] = .75
+        colors[i,-1] = .75e
     return colors
     
+
 if __name__ == '__main__':
     color_map(test)
     print('is_main')
