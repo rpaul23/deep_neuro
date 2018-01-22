@@ -11,21 +11,21 @@ import h5py
 import numpy as np
 
 
-def loadcoords(coords_path):
+def load_coords(coords_path):
     """Gets coords from MATLAB file and returns them as ndarray. """
     return loadmat(coords_path)['xy']
 
 
-def channelnumbers(rinfo_path):
+def channel_numbers(rinfo_path):
     """Loads all channel numbers of electrodes used in a given session. """
     # Get channel numbers from recording info
     with h5py.File(rinfo_path, 'r') as f:
         rinfo = f.get('recording_info')
-        channelnumbers = [int(c.item()) for c in rinfo['channel_numbers']]
-    return channelnumbers
+        channel_numbers = [int(c.item()) for c in rinfo['channel_numbers']]
+    return channel_numbers
     
 
-def areanames(rinfo_path, unique=True, as_list=False):
+def area_names(rinfo_path, unique=True, as_list=False):
     """Loads all area names recorded in a given session. 
     
     Args:
@@ -35,7 +35,7 @@ def areanames(rinfo_path, unique=True, as_list=False):
         as_list: A boolean. Return list if set to True.
             
     Returns:
-        An ndarray of areanames, either unique values or one per electrode;
+        An ndarray of area_names, either unique values or one per electrode;
         optionally returns a list if as_list is set to True.
     """
     # Open file for given recording
@@ -44,26 +44,26 @@ def areanames(rinfo_path, unique=True, as_list=False):
         
         # Get area names
         area = rinfo['area']
-        areanames = []
+        area_names = []
         for i in range(area.shape[0]):
             for j in range(area.shape[1]):
                 curr_idx = area[i][j]
                 curr_area = rinfo[curr_idx]
                 curr_str = ''.join(chr(k) for k in curr_area[:])
-                areanames.append(curr_str)
+                area_names.append(curr_str)
     
     # Convert to ndarray
-    areanames = np.array(areanames)
+    area_names = np.array(area_names)
     
     # If unique is True, return only unique values, optionally as list
     if unique == True:
-        areanames = np.unique(areanames)
+        area_names = np.unique(area_names)
         if as_list == True:
-            areanames = areanames.tolist()
-    return areanames
+            area_names = area_names.tolist()
+    return area_names
 
     
-def targetchannels(list_of_areas, rinfo_path, return_nchans=False):
+def target_channels(list_of_areas, rinfo_path, return_nchans=False):
     """Returns indices of channels in a given set of target areas.
     
     Args:
@@ -77,14 +77,14 @@ def targetchannels(list_of_areas, rinfo_path, return_nchans=False):
         n_chans: An int. Number of channels in the area of interest (optional).
     """    
     # Get area names and channel numbers
-    area_names = areanames(rinfo_path, unique=False)
+    areas = area_names(rinfo_path, unique=False)
     
     # Convert to list if input is str/int
     if not isinstance(list_of_areas, list):
         list_of_areas = [list_of_areas]
     
     # For number of areas in list_of_areas
-    target_indices = [count for count, name in enumerate(area_names) 
+    target_indices = [count for count, name in enumerate(areas) 
                       if name in list_of_areas]
     
     # If return_nchans set to True, also return number of channels in ROI.
@@ -92,3 +92,24 @@ def targetchannels(list_of_areas, rinfo_path, return_nchans=False):
         return target_indices 
     else:
         return target_indices, len(target_indices)
+    
+
+def flatmap_coords(path, area):
+    """Gets flatmap area coordinates from MATLAB file and returns ndarray."""
+    if area in [el for el in loadmat(path)]:
+        coords = np.array([el for el in loadmat(path)[area]])
+    elif area.lower() in [el for el in loadmat(path)]:
+        coords = np.array([el for el in loadmat(path)[area.lower()]])
+    elif area.upper() in [el for el in loadmat(path)]:
+        coords = np.array([el for el in loadmat(path)[area.upper()]])
+    else:
+        print("Area not available.")
+        
+    return coords
+
+
+if __name__ == '__main__':
+    coords_path = '/media/jannes/disk2/raw/brainmap/all_flatmap_areas.mat'
+    rinfo_path = '/media/jannes/disk2/raw/141023/session01/recording_info.mat'
+    print(area_names(rinfo_path))
+    flatmap_coords(coords_path, 'V1')
