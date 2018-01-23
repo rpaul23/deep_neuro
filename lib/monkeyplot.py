@@ -7,6 +7,7 @@ Created on Thu Jan 18 16:43:55 2018
 """
 
 import matplotlib.pyplot as plt
+from matplotlib.patches import Polygon
 import pandas as pd
 import numpy as np
 import imageio
@@ -67,7 +68,6 @@ def elecs_wholebrain(coords_path, rinfo_path, rotate=True, by_significance=False
                         / max(df['mean']) * ms_factor)
             
     # Use pandas for grouping
-    #df = pd.DataFrame(dict(x=df['x'], y=df['y'], label=df['area']))
     df_grouped = df.groupby('area')
     
     # Plot
@@ -88,28 +88,57 @@ def elecs_wholebrain(coords_path, rinfo_path, rotate=True, by_significance=False
     
 def plot_jpg(path):
     img = imageio.imread(path)
-    plt.imshow(img)
+    plt.imshow(img, zorder=0)
     
     
 def plot_area(coords, color):
     """Gets coords from all_flatmap_areas.mat and plots them."""
     # Plot
-    plt.plot(coords[:,0], coords[:,1], color='black')
-    plt.fill(coords[:,0], coords[:,1], color=color)
+    plt.plot(coords['x'], coords['y'], color='black', linewidth=2, zorder=2)
+    plt.fill(coords['x'], coords['y'], color=color, zorder=1)
     plt.xticks([])
     plt.yticks([])
     
-
-def color_map(df):
-    """Takes df of area means as input and returns colormap."""
-    colors = plt.cm.afmhot((df['mean'] * 255).astype(int))
-    for i in range(len(colors)):
-        colors[i,-1] = .75e
-    return colors
     
+def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
+    """"""
+    import matplotlib.colors as colors
+
+    new_cmap = colors.LinearSegmentedColormap.from_list(
+        'trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval),
+        cmap(np.linspace(minval, maxval, n)))
+    return new_cmap
+    
+
+def colored_map(df, jpg_path, cmap):
+    """Test2"""
+    from matplotlib.collections import PatchCollection
+    
+    fig, ax = plt.subplots(figsize=(10,10))
+    patches = []
+    areas = df['area'].unique()
+    means = df['mean'].unique()
+    
+    for area in areas:
+        subset = df[df['area'] == area]
+        ax.plot(subset['x'], subset['y'], color='black', linewidth=1.5)
+        curr_area = Polygon(subset[['x', 'y']].as_matrix(), True)
+        patches.append(curr_area)
+
+    p = PatchCollection(patches, cmap=cmap, alpha=.9)
+    colors = np.hstack((100*means, 0, 100))  # Scale from 0 to 100 by appending
+    p.set_array(colors)
+    ax.add_collection(p)
+    ax.set_xlim([-50, 2050])
+    ax.set_ylim([2000, -150])
+    ax.set_xticklabels([])
+    ax.set_yticklabels([])
+    plot_jpg(jpg_path)
+    plt.colorbar(p)
+    plt.plot()
+    return ax
+
 
 if __name__ == '__main__':
-    color_map(test)
     print('is_main')
-    
         

@@ -96,20 +96,24 @@ def target_channels(list_of_areas, rinfo_path, return_nchans=False):
 
 def flatmap_coords(path, area):
     """Gets flatmap area coordinates from MATLAB file and returns ndarray."""
+    import pandas as pd
+    cols = ['x', 'y']
     if area in [el for el in loadmat(path)]:
-        coords = np.array([el for el in loadmat(path)[area]])
+        coords = pd.DataFrame([el for el in loadmat(path)[area]], 
+                              columns=cols)
     elif area.lower() in [el for el in loadmat(path)]:
-        coords = np.array([el for el in loadmat(path)[area.lower()]])
+        coords = pd.DataFrame([el for el in loadmat(path)[area.lower()]], 
+                              columns=cols)
     elif area.upper() in [el for el in loadmat(path)]:
-        coords = np.array([el for el in loadmat(path)[area.upper()]])
+        coords = pd.DataFrame([el for el in loadmat(path)[area.upper()]], 
+                              columns=cols)
     else:
         print("Area not available.")
-        
+    coords['area'] = area
     return coords
 
 
 if __name__ == '__main__':
     coords_path = '/media/jannes/disk2/raw/brainmap/all_flatmap_areas.mat'
     rinfo_path = '/media/jannes/disk2/raw/141023/session01/recording_info.mat'
-    print(area_names(rinfo_path))
     flatmap_coords(coords_path, 'V1')

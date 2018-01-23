@@ -8,6 +8,8 @@ Created on Thu Jan 18 15:08:48 2018
 
 # Imports
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
 import lib.frommatlab as fmat
 import lib.monkeyplot as mplt
@@ -29,20 +31,22 @@ pval_path = ('/home/jannes/dat/results/accuracy/summary/pval/'
 
 
 # Data
-areas = hlp.pvals_from_csv(pval_path, 
-                           only_significant=True, 
-                           decode_for=decode_for, 
-                           alevel=.1)
-areas = areas[areas['area'].str.len() < 5]  # drop data for aggregated areas
-areas = areas.sort_values(by=['mean'])
-colors = mplt.color_map(areas)
+pvals = hlp.pvals_from_csv(pval_path,
+                           only_significant=True,
+                           decode_for=decode_for,
+                           alevel=.05)
+pvals = pvals[[len(el) < 5 for el in pvals['area']]]
+unique_areas = np.unique(pvals['area'])
+coords = pd.DataFrame(columns=['x', 'y', 'area'])
+for area in unique_areas:
+    coords = coords.append(fmat.flatmap_coords(areas_path, area))
+df = coords.merge(pvals)
 
 
 # Plot
-plt.figure(figsize=(10,10))
-for idx, area in enumerate(areas['area']):
-    coords = fmat.flatmap_coords(areas_path, area)
-    mplt.plot_area(coords, colors[idx])
-mplt.plot_jpg(jpg_path)
-plt.legend(['test'])
-plt.title('Decode: ' + decode_for + ', phase: ' + phase)
+cmap = plt.get_cmap('afmhot')
+new_cmap = mplt.truncate_colormap(cmap, 0, 1)
+ax = mplt.colored_map(df, jpg_path, new_cmap)
+plt.title(decode_for + ', ' + phase)
+plt.show()
+
