@@ -8,6 +8,7 @@ Created on Thu Jan 18 16:43:55 2018
 
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
+from matplotlib.collections import PatchCollection
 import pandas as pd
 import numpy as np
 import imageio
@@ -108,37 +109,83 @@ def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
         'trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval),
         cmap(np.linspace(minval, maxval, n)))
     return new_cmap
+
+def label_positions(area, labels_path):
+    """"""
+    df = pd.read_csv(labels_path)
+    x = df[df['area'] == area]['x']
+    y = df[df['area'] == area]['y']
+    arr = df[df['area'] == area]['arr']
+    x_arr = df[df['area'] == area]['x_arr']
+    y_arr = df[df['area'] == area]['y_arr']
+    label = area
+    return x, y, label, arr, x_arr, y_arr
     
 
-def colored_map(df, jpg_path, cmap):
-    """Test2"""
-    from matplotlib.collections import PatchCollection
-    
-    fig, ax = plt.subplots(figsize=(10,10))
+def colored_map(df, jpg_path, labels_path, cmap, threshold=.2):
+    """Test2"""    
+    # Data
     patches = []
     areas = df['area'].unique()
-    means = df['mean'].unique()
+    means = df.groupby('area')['mean'].mean()
+    # Styling
+    fontsize = 40
+    fontfamily = 'Helvetica Neue LT'
     
+    # Plot colored map
+    fig, ax = plt.subplots(figsize=(30,30))
     for area in areas:
         subset = df[df['area'] == area]
         ax.plot(subset['x'], subset['y'], color='black', linewidth=1.5)
+        x, y, label, arr, x_arr, y_arr = label_positions(area, labels_path)
+        if arr.item() == 0:
+            t = ax.text(x, y, label, fontsize=fontsize, color='white', 
+                    family=fontfamily, va='center')
+            t.set_bbox(dict(facecolor='black', alpha=.7, edgecolor='white'))
+        else:
+            t = ax.annotate(label, 
+                        xy=(x, y), 
+                        xytext=(x_arr, y_arr),
+                        fontsize=fontsize, family=fontfamily,
+                        color='white',
+                        arrowprops=dict(facecolor='blac', 
+                                        width=1, headwidth=10, headlength=10,
+                                        shrink=0, color='black'))
+            t.set_bbox(dict(facecolor='black', alpha=.7, edgecolor='white'))
+        
         curr_area = Polygon(subset[['x', 'y']].as_matrix(), True)
         patches.append(curr_area)
-
-    p = PatchCollection(patches, cmap=cmap, alpha=.9)
+    p = PatchCollection(patches, cmap=cmap, alpha=1)
     colors = np.hstack((100*means, 0, 100))  # Scale from 0 to 100 by appending
     p.set_array(colors)
     ax.add_collection(p)
     ax.set_xlim([-50, 2050])
     ax.set_ylim([2000, -150])
-    ax.set_xticklabels([])
-    ax.set_yticklabels([])
+    ax.set_xticks([])
+    ax.set_yticks([])
     plot_jpg(jpg_path)
-    plt.colorbar(p)
-    plt.plot()
+    
+    # Plot colorbar
+    areas = df[['area', 'mean']].drop_duplicates().sort_values(['mean'], 
+              ascending=False)['area'][0:3]
+    cbar = plt.colorbar(p, fraction=0.046, pad=0.04)
+    cbar.ax.tick_params(labelsize=30) 
+    cbar.ax.set_ylabel('Prediction accuracy', rotation=270, fontsize=40, 
+                       verticalalignment='center', family='Helvetica Neue LT')
+    cbar.ax.plot([0,1], [threshold, threshold], 'white', linewidth=4)
+    cbar.ax.text(x=-1, y=threshold, s='chance\nlevel', color='white', 
+                 backgroundcolor='black', va='center', ha='center', 
+                 fontsize=30, zorder=99)
+    for count, area in enumerate(areas):
+        subset = df[df['area'] == area]
+        x, ha = (-.25, 'right') if count % 2 == 0 else (1.25, 'left')
+        y = np.mean(subset['mean'])
+        cbar.ax.plot([0,1], [y, y], 'white', linewidth=4, zorder=1)
+        t = cbar.ax.text(x=x, y=y, s=area, color='white', fontsize=30, 
+                         ha='center', va='center', zorder=3-count+1)
+        t.set_bbox(dict(facecolor='black', alpha=.7, edgecolor='red'))
     return ax
 
 
 if __name__ == '__main__':
     print('is_main')
-        
