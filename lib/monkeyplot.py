@@ -87,9 +87,14 @@ def elecs_wholebrain(coords_path, rinfo_path, rotate=True, by_significance=False
     plt.show()
     
     
-def plot_jpg(path):
+def plot_jpg(path, return_ax=False):
     img = imageio.imread(path)
     plt.imshow(img, zorder=0)
+    
+    if return_ax == True:
+        fig, ax = plt.subplots()
+        ax.imshow(img, zorder=0)
+        return ax
     
     
 def plot_area(coords, color):
@@ -185,7 +190,6 @@ def colored_map(df, jpg_path, labels_path, cmap, threshold=.2):
                          ha='center', va='center', zorder=3-count+1)
         t.set_bbox(dict(facecolor='black', alpha=.7, edgecolor='red'))
     return ax
-
 
 if __name__ == '__main__':
     print('is_main')
