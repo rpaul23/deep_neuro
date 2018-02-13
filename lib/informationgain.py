@@ -49,10 +49,8 @@ class Log():
             return self.df[columns]
         
     def mutual_information(self, var1, var2):
+        pass
         
-        
-        
-
 
 def main():
     session = '141023'
@@ -115,37 +113,3 @@ def main():
     
 if __name__ == '__main__':
     main()
-
-
-def main2():
-    # TO DO: Everything
-    new_softmax = []
-    trials = 'All trials in one session'
-    areas_to_combine = ['V1', 'V2']
-    n_areas = len(areas_to_combine)
-    n_classes = 2
-
-    subset = 'must be dataframe'
-    runs = [row for row in subset.iterrows()]
-    for run in runs:
-        observations = 1
-        for observation in observations:
-            softmax = np.zeros(n_areas, dtype=np.ndarray)
-        for count, area in enumerate(areas_to_combine):
-            softmax[count] = 'Softmax output for current trial and current area'
-
-        # Sum of products
-        K = np.sum(np.prod(softmax, axis=0))
-
-        # New classifier
-        new_classifier = []
-        for curr_class in range(n_classes):
-            new_classifier.append(
-                np.prod(softmax, axis=0)[curr_class] / K
-            )
-        new_softmax.append(new_classifier)
-
-    # One-hot encoding of new_softmax
-    # Compare one-hot to labels
-    # Compute MI
-    # Compute simple difference
