@@ -191,7 +191,7 @@ def elu_batch(x_in, n_in, n_out, patch_dim, pool_dim, training, n_chans,
 def create_network(n_layers, x_in, n_in, n_out, patch_dim, pool_dim, training, 
                    n_chans, n_samples, weights_dist='random_normal', 
                    normalized_weights=True, nonlin='leaky_relu', 
-                   bn=True):
+                   bn=True, keep_prob=0.5):
     """Creates arbritray number of hidden layers.
     
     Args:
@@ -246,6 +246,14 @@ def create_network(n_layers, x_in, n_in, n_out, patch_dim, pool_dim, training,
                     is_first_layer=is_first_layer)
         else:
             raise ValueError('Non-linearity "' + nonlin + '" not supported.')
+        
+        # Lower dropout for earlier layers
+        #keep_prob = 1 - i*0.125
+        #curr_output = tf.nn.dropout(curr_output, keep_prob)
+        if is_first_layer == True:
+            curr_output = tf.nn.dropout(curr_output, .75)
+        else:
+           curr_output = tf.nn.dropout(curr_output, keep_prob)
         
         # Output of current layer is input of next, weights added to dict
         curr_in = curr_output
