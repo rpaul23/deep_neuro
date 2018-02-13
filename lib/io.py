@@ -208,3 +208,21 @@ def get_samples(tinfo_path):
         # Extract and return sample classes. substract 1 to have classes range
         # from 0 to 4 instead of 1 to 5
         return np.array([k-1 for k in tinfo['sample_image']])
+    
+
+def get_area_names(rinfo_path):
+    """Returns array of unique area names for recordings of a given session. """
+    with h5py.File(rinfo_path, 'r') as f:
+        info = f.get('recording_info')
+        area = info['area']
+
+        area_names = []
+        for i in range(area.shape[0]):
+            for j in range(area.shape[1]):
+                curr_idx = area[i][j]
+                curr_area = info[curr_idx]
+                curr_str = ''.join(chr(k) for k in curr_area[:])
+                area_names.append(curr_str)
+        area_names = np.array(area_names)
+        area_names.shape = (area.shape[0], area.shape[1])
+        return np.unique(area_names)
