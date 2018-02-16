@@ -9,6 +9,7 @@ Created on Mon Jan  8 15:20:30 2018
 import tensorflow as tf
 import numpy as np
 
+DECAY = .999
 
 def init_weights(shape, dist='random_normal', normalized=True):
     """Initializes network weights.
@@ -134,7 +135,8 @@ def leaky_relu_batch(x_in, n_in, n_out, patch_dim, pool_dim, training, n_chans,
                 data_format='NHWC',
                 center=True,
                 scale=True,
-                is_training=training)
+                is_training=training,
+                decay=DECAY)
         maxp_bn_relu = max_pool(cnn_bn_relu, pool_dim)
     else:
         maxp_bn_relu = max_pool(cnn_relu, pool_dim)
@@ -181,12 +183,14 @@ def elu_batch(x_in, n_in, n_out, patch_dim, pool_dim, training, n_chans,
                 data_format='NHWC',
                 center=True,
                 scale=True,
-                is_training=training)
+                is_training=training,
+                decay=DECAY)
         maxp_bn_elu = max_pool(cnn_bn_elu, pool_dim)
     else:
         maxp_bn_elu = max_pool(cnn_elu, pool_dim)
     
     return maxp_bn_elu, weights
+
 
 def create_network(n_layers, x_in, n_in, n_out, patch_dim, pool_dim, training, 
                    n_chans, n_samples, weights_dist='random_normal', 
@@ -247,14 +251,6 @@ def create_network(n_layers, x_in, n_in, n_out, patch_dim, pool_dim, training,
         else:
             raise ValueError('Non-linearity "' + nonlin + '" not supported.')
         
-        # Lower dropout for earlier layers
-        #keep_prob = 1 - i*0.125
-        #curr_output = tf.nn.dropout(curr_output, keep_prob)
-        if is_first_layer == True:
-            curr_output = tf.nn.dropout(curr_output, .75)
-        else:
-           curr_output = tf.nn.dropout(curr_output, keep_prob)
-        
         # Output of current layer is input of next, weights added to dict
         curr_in = curr_output
         weights[i] = curr_weights
@@ -262,7 +258,7 @@ def create_network(n_layers, x_in, n_in, n_out, patch_dim, pool_dim, training,
     return curr_output, weights
 
 
-def fully_connected(x_in, bn, units, nonlin='leaky_relu', 
+def fully_connected(x_in, bn, units, training, nonlin='leaky_relu', 
                     weights_dist='random_normal', normalized_weights=True):
     """Adds fully connected layer.
     
@@ -270,6 +266,7 @@ def fully_connected(x_in, bn, units, nonlin='leaky_relu',
         x_in: A tensor. Input layer.
         bn: A boolean. Indicating whether batch-norm. should be applied.
         units: An int. Number of output units.
+        training: A boolean. Indicates training (True) or test (False).
         nonlin: A str. One of 'leaky_relu' or 'elu'; non-linearity to use.
         
     Returns:
@@ -285,20 +282,44 @@ def fully_connected(x_in, bn, units, nonlin='leaky_relu',
     flat = tf.reshape(x_in, [-1, dim])
     h_conv = tf.matmul(flat, weights)
     
-    # Manually batch-normalize fully-connected layer
+    # Batch-normalize fully-connected layer
     if bn == True:
-        batch_mean, batch_var = tf.nn.moments(h_conv, [0])    
-        h_conv_hat = (h_conv - batch_mean) / tf.sqrt(batch_var + 1e-3)
-        scale = tf.Variable(tf.ones([units]))
-        beta = tf.Variable(tf.zeros([units]))
+        
+        # Manual batch-normalization
+# =============================================================================
+#         batch_mean, batch_var = tf.nn.moments(h_conv, [0])    
+#         h_conv_hat = (h_conv - batch_mean) / tf.sqrt(batch_var + 1e-3)
+#         scale = tf.Variable(tf.ones([units]))
+#         beta = tf.Variable(tf.zeros([units]))
+#         if nonlin == 'leaky_relu':
+#             layer_bn = tf.nn.leaky_relu(h_conv_hat)
+#         elif nonlin == 'elu':
+#             layer_bn = tf.nn.elu(h_conv_hat)
+#         else:
+#             raise ValueError('Non-linearity "' + nonlin + '" not supported.')
+#         out = scale * layer_bn + beta
+# =============================================================================
+        
         if nonlin == 'leaky_relu':
-            layer_bn = tf.nn.leaky_relu(h_conv_hat)
+            layer_bn = tf.nn.leaky_relu(h_conv)
+            out = tf.contrib.layers.batch_norm(
+                    layer_bn,
+                    data_format='NHWC',
+                    center=True,
+                    scale=True,
+                    is_training=training,
+                    decay=DECAY)
         elif nonlin == 'elu':
-            layer_bn = tf.nn.elu(h_conv_hat)
+            layer_bn = tf.nn.elu(h_conv)
+            out = tf.contrib.layers.batch_norm(
+                    layer_bn,
+                    data_format='NHWC',
+                    center=True,
+                    scale=True,
+                    is_training=training,
+                    decay=DECAY)
         else:
             raise ValueError('Non-linearity "' + nonlin + '" not supported.')
-    
-        out = scale * layer_bn + beta
     else:
         if nonlin == 'leaky_relu':
             out = tf.nn.leaky_relu(h_conv)
