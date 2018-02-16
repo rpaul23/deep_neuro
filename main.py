@@ -25,6 +25,7 @@ sess_no = '141023'
 decode_for = 'resp'
 
 file = '/home/jannes/dat/results/accuracy/141023/combinations/resp.txt'
+
 # Get current params from file
 with open(file, 'rb') as f:
     params = np.loadtxt(f, dtype='object', delimiter='\n')
@@ -169,10 +170,11 @@ for count, target_area in enumerate(target_areas):
     # Fully-connected layer (BN)
     fc1, weights[n_layers] = cnn.fully_connected(out, 
                 bn=True, 
-                units=fc_units, 
+                units=fc_units,
                 nonlin=nonlin,
                 weights_dist=dist,
-                normalized_weights=normalized_weights)
+                normalized_weights=normalized_weights,
+                training=training)
     
     
     ###################
@@ -307,3 +309,4 @@ for count, target_area in enumerate(target_areas):
               + '/combinations/' + sess_no + '_acc_' + decode_for + '_' 
               + interval + '.csv', 'a') as f:
        df.to_csv(f, index=False, header=False)
+
