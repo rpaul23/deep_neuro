@@ -9,6 +9,7 @@ Created on Thu Jan 18 16:43:55 2018
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 from matplotlib.collections import PatchCollection
+import matplotlib.colors as colors
 import pandas as pd
 import numpy as np
 import imageio
@@ -19,7 +20,6 @@ if __name__ == '__main__':
 else:
     from . import frommatlab as fmat
     from . import helpers as hlp
-
 
 def elecs_by_area(list_of_areas, coords_path, rinfo_path, rotate=True):
     """Plots electrodes for a given set of target areas onto a map. """
@@ -33,7 +33,6 @@ def elecs_by_area(list_of_areas, coords_path, rinfo_path, rotate=True):
         
     # Plot
     plt.scatter(coords[:,0], coords[:,1])
-
 
 def elecs_wholebrain(coords_path, rinfo_path, rotate=True, by_significance=False,
                pvals=None, alevel=.05, decode_for=None):
@@ -73,7 +72,6 @@ def elecs_wholebrain(coords_path, rinfo_path, rotate=True, by_significance=False
     
     # Plot
     fig, ax = plt.subplots()
-    #plt.style.use('fivethirtyeight')
     ax.margins(0.05) # Optional, just adds 5% padding to the autoscaling
     for name, group in df_grouped:
         if by_significance == True:
@@ -85,8 +83,7 @@ def elecs_wholebrain(coords_path, rinfo_path, rotate=True, by_significance=False
     plt.ylim((-1000, 0))
     ax.legend()
     plt.show()
-    
-    
+
 def plot_jpg(path, return_ax=False):
     img = imageio.imread(path)
     plt.imshow(img, zorder=0)
@@ -95,8 +92,7 @@ def plot_jpg(path, return_ax=False):
         fig, ax = plt.subplots()
         ax.imshow(img, zorder=0)
         return ax
-    
-    
+
 def plot_area(coords, color):
     """Gets coords from all_flatmap_areas.mat and plots them."""
     # Plot
@@ -104,12 +100,9 @@ def plot_area(coords, color):
     plt.fill(coords['x'], coords['y'], color=color, zorder=1)
     plt.xticks([])
     plt.yticks([])
-    
-    
-def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
-    """"""
-    import matplotlib.colors as colors
 
+def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
+    """Truncates passed colormap from minval to maxval."""
     new_cmap = colors.LinearSegmentedColormap.from_list(
         'trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval),
         cmap(np.linspace(minval, maxval, n)))
@@ -126,9 +119,56 @@ def label_positions(area, labels_path):
     label = area
     return x, y, label, arr, x_arr, y_arr
     
+def colored_lobes(coords, jpg_path):
+    """Color jpg of brain regions by their lobe association."""
+    import matplotlib.patches as mpatches
+    areas = coords['area'].unique()
+    fig, ax = plt.subplots(figsize=(15, 15))
+
+    visual_lobe = ['V1', 'V2', 'V3', 'V3A', 'V4', 'V6', 'V6A', 'DP', 'MST',
+                   'MT', 'FST', 'TEOm', 'TEO', 'TEpd', 'V4t']
+    parietal_lobe = ['a5', 'MIP', 'VIP', 'AIP', 'PIP', 'LIP', 'a7A', 'a7B',
+                     'a7m', 'a23', 'TPt']
+    somatosensory_cortex = ['a1', 'a2', 'a3', 'SII']
+    motor_cortex = ['F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7']
+    temporal_lobe = ['Ins', 'STPc']
+    auditory_cortex = ['MB', 'Core', 'LB', 'PBr']
+    visual_patch = mpatches.Patch(color='goldenrod', label='Visual areas')
+    temporal_patch = mpatches.Patch(color='plum', label='Temporal areas')
+    motor_patch = mpatches.Patch(color='lightblue', label='Motor areas')
+    somato_patch = mpatches.Patch(color='turquoise', label='Somatosensory areas')
+    parietal_patch = mpatches.Patch(color='teal', label='Parietal areas')
+    prefrontal_patch = mpatches.Patch(color='crimson', label='Prefrontal areas')
+    for area in areas:
+        subset = coords[coords['area'] == area]
+        ax.plot(subset['x'], subset['y'], color='black')
+        if area in visual_lobe:
+            color = 'goldenrod'
+        elif area in temporal_lobe:
+            color = 'plum'
+        elif area in motor_cortex:
+            color = 'lightblue'
+        elif area in somatosensory_cortex:
+            color = 'turquoise'
+        elif area in parietal_lobe:
+            color = 'teal'
+        elif area in auditory_cortex:
+            color = 'black'
+        else:
+            color = 'crimson'
+        ax.fill(subset['x'], subset['y'], color=color)
+    ax.legend(handles=[visual_patch, temporal_patch, motor_patch, somato_patch,
+                       parietal_patch, prefrontal_patch],
+              fontsize=22)
+    ax.set_xlim([-50, 2050])
+    ax.set_ylim([2000, -150])
+    ax.set_xticks([])
+    ax.set_yticks([])
+    plot_jpg(jpg_path)
+    return ax
 
 def colored_map(df, jpg_path, labels_path, cmap, threshold=.2):
-    """Test2"""    
+    """Color jpg of brain regions by their prediction accuracy."""
     # Data
     patches = []
     areas = df['area'].unique()
