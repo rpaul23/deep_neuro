@@ -18,9 +18,9 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 
-import lib.io as io
-import lib.cnn as cnn
-import lib.helpers as hlp
+import lib.cnn.io as io
+import lib.cnn.cnn as cnn
+import lib.cnn.helpers as hlp
 
 param_index = int(sys.argv[1])
 base_path = '/home/' + sys.argv[2] + '/'
