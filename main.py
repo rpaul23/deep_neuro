@@ -309,4 +309,3 @@ for count, target_area in enumerate(target_areas):
               + '/combinations/' + sess_no + '_acc_' + decode_for + '_' 
               + interval + '.csv', 'a') as f:
        df.to_csv(f, index=False, header=False)
-
