@@ -9,12 +9,11 @@ Created on Thu Jan 18 15:10:49 2018
 from scipy.io import loadmat
 import h5py
 import numpy as np
-
+import pandas as pd
 
 def load_coords(coords_path):
     """Gets coords from MATLAB file and returns them as ndarray. """
     return loadmat(coords_path)['xy']
-
 
 def channel_numbers(rinfo_path):
     """Loads all channel numbers of electrodes used in a given session. """
@@ -23,7 +22,6 @@ def channel_numbers(rinfo_path):
         rinfo = f.get('recording_info')
         channel_numbers = [int(c.item()) for c in rinfo['channel_numbers']]
     return channel_numbers
-    
 
 def area_names(rinfo_path, unique=True, as_list=False):
     """Loads all area names recorded in a given session. 
@@ -61,7 +59,6 @@ def area_names(rinfo_path, unique=True, as_list=False):
         if as_list == True:
             area_names = area_names.tolist()
     return area_names
-
     
 def target_channels(list_of_areas, rinfo_path, return_nchans=False):
     """Returns indices of channels in a given set of target areas.
@@ -92,11 +89,9 @@ def target_channels(list_of_areas, rinfo_path, return_nchans=False):
         return target_indices 
     else:
         return target_indices, len(target_indices)
-    
 
 def flatmap_coords(path, area):
     """Gets flatmap area coordinates from MATLAB file and returns ndarray."""
-    import pandas as pd
     cols = ['x', 'y']
     if area in [el for el in loadmat(path)]:
         coords = pd.DataFrame([el for el in loadmat(path)[area]], 
@@ -107,11 +102,13 @@ def flatmap_coords(path, area):
     elif area.upper() in [el for el in loadmat(path)]:
         coords = pd.DataFrame([el for el in loadmat(path)[area.upper()]], 
                               columns=cols)
+    elif area.replace('/', '_') in [el for el in loadmat(path)]:
+        coords = pd.DataFrame([el for el in loadmat(path)[area.replace('/', '_')]],
+                              columns=cols)
     else:
-        print("Area not available.")
+        print("Area not available ({}).".format(area))
     coords['area'] = area
     return coords
-
 
 if __name__ == '__main__':
     coords_path = '/media/jannes/disk2/raw/brainmap/all_flatmap_areas.mat'
