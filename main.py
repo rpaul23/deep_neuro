@@ -112,6 +112,6 @@ def main():
     sessions = ['mean']
     alevels = [.05]
     plot_areas(decoders, intervals, sessions, alevels)
-    
+
 if __name__ == '__main__':
     main()
