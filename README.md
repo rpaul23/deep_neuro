@@ -21,13 +21,16 @@ mkdir -p results/training/pvals
 mkdir -p results/training/summary
 mkdir -p results/training/plots
 mkdir -p scripts/_params
-mkdir -p scripts/deep_neuro/
+mkdir -p scripts/deep_neuro
 ```
 The you use `cd scripts/deep_neuro/` to change into your scripts directory and
 clone this repository using `git clone https://github.com/rpaul23/deep_neuro.git`.
 
-Move raw data into `data/raw/` and pre-processed data into `data/pre-processed/`
-and you should be ready to go.
+Move raw data into `data/raw/` (and/or already pre-processed data into 
+`data/pre-processed/`) and you should be ready to go.
+
+### Pre-process raw data
+Section will be added shortly.
 
 ### Train classifier
 To train a classifier, `cd` into your scripts directory and source the submit
