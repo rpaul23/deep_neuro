@@ -8,6 +8,7 @@ Created on Thu Jan 18 15:08:48 2018
 
 # Imports
 import sys
+import os
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -35,7 +36,7 @@ def plot_areas(accountname, decoders, intervals, sessions, alevel):
                 jpg_path = raw_path + 'brainmap/Flatmap_no_areas.jpg'
                 pval_path = (results_path + 'training/pvals/' + session
                              + '_' + decode_for + '_pvals.csv')
-                path_out = results_path + 'plots/brainmaps/'
+                path_out = results_path + 'plots/'
 
                 # Data
                 pvals = hlp.pvals_from_csv(pval_path,
@@ -79,9 +80,11 @@ def plot_areas(accountname, decoders, intervals, sessions, alevel):
                                     + phase.replace('_500','') + ' period')
                 plt.title(title_string, fontsize=30,
                           family='Helvetica Neue LT')
-                plt.savefig(path_out + sess + '/' + sess + '_'
-                            + decode_for + '_' + phase + '_' + str(alevel)
-                            + '.png')
+                curr_dir = path_out + session + '/'
+                if not os.path.exists(curr_dir):
+                    os.makedirs(curr_dir)
+                plt.savefig(curr_dir + session + '_'+ decode_for + '_' + phase
+                            + '_' + str(alevel) + '.png')
 
 def plot_lobes(accountname, session):
     # Paths
