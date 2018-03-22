@@ -16,10 +16,8 @@ import imageio
 
 if __name__ == '__main__':
     import frommatlab as fmat
-    import helpers as hlp
 else:
     from . import frommatlab as fmat
-    from . import helpers as hlp
 
 def elecs_by_area(list_of_areas, coords_path, rinfo_path, rotate=True):
     """Plots electrodes for a given set of target areas onto a map. """
