@@ -15,13 +15,9 @@ as well as dealing with the analysis and visualization of the results
 To get started, create a folder structure in your project directory using 
 following code:
 ```shell
-mkdir -p data/pre-processed
-mkdir -p data/raw
-mkdir -p results/training/pvals
-mkdir -p results/training/summary
-mkdir -p results/training/plots
-mkdir -p scripts/_params
-mkdir -p scripts/deep_neuro
+mkdir -p data/pre-processed data/raw
+mkdir -p results/training/pvals results/training/summary results/training/plots
+mkdir -p scripts/_params scripts/deep_neuro
 ```
 The you use `cd scripts/deep_neuro/` to change into your scripts directory and
 clone this repository using `git clone https://github.com/rpaul23/deep_neuro.git`.
