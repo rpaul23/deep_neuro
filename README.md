@@ -19,7 +19,7 @@ mkdir -p data/pre-processed data/raw
 mkdir -p results/training/pvals results/training/summary results/training/plots
 mkdir -p scripts/_params scripts/deep_neuro
 ```
-The you use `cd scripts/deep_neuro/` to change into your scripts directory and
+The use `cd scripts/deep_neuro/` to change into your scripts directory and
 clone this repository using `git clone https://github.com/rpaul23/deep_neuro.git`.
 
 Move raw data into `data/raw/` (and/or already pre-processed data into 
