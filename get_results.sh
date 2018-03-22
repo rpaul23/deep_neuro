@@ -3,7 +3,7 @@ source deactivate
 source /soft/miniconda3/activate
 source activate tf
 
-echo "Do you want to generate plots as well? [Y|N]:"
+echo "Do you want to generate plots as well? [y|n]:"
 read bool_plots
 
 while getopts ':a:s:h' flag; do
