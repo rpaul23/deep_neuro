@@ -26,7 +26,19 @@ Move raw data into `data/raw/` (and/or already pre-processed data into
 `data/pre-processed/`) and you should be ready to go.
 
 ### Pre-process raw data
-Section will be added shortly.
+The pre-prossesing parameters are set in `lib/matnpy/matnpy.py`. To pre-process
+raw data, just `cd` into the scripts directory and source the `prep_data.sh`
+file using `. prep_data.sh -u <user_name> -s <session> -t <trial_length>`. The
+`trial_length` parameter is optional and set to 500 ms by default. How 
+pre-processing using the matnpy module works is that it cuts every trial of a 
+given session into five intervals:
+* pre-sample (500 ms before stimulus onset)
+* sample (500 ms after stimulus onset)
+* delay (500 ms after stimulus offset)
+* pre-match (500 ms before match onset)
+* match (500 ms after match onset)
+
+Example call: `. prep_data.sh -u jannesschaefer -s 141023 -t 500`
 
 ### Train classifier
 To train a classifier, `cd` into your scripts directory and source the submit
@@ -37,6 +49,9 @@ file using `. submit_training.sh -a <accountname> -s <session> -n <node>` where
 optional `-n` flag (e. g. `-n n04`). The job will be submitted to the cluster
 and processed once the ressources are available.
 
+Example call: `. submit_training.sh -u jannesschaefer -s 140123 -n n04`
+
+
 ### Get results
 To get results, just `cd` into the deep_neuro directory and source the 
 `get_results.sh` file. This will generate a summary file in 
@@ -44,5 +59,7 @@ To get results, just `cd` into the deep_neuro directory and source the
 `results/training/pvals/`. You will also be asked whether you want to generate 
 plots as well. If yes, plots will be stored in 
 `results/training/plots/`.
+
+Example call: `. get_results.sh -u jannesschaefer -s 140123 -n n04`
 
 This readme will be appended shortly.
