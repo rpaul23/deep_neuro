@@ -15,7 +15,7 @@ while getopts ':n:s:u:h' flag; do
 done
 export $user_name
 
-n_runs="$(python param_gen.py $session user_name)"
+n_runs="$(python param_gen.py $session $user_name)"
 
 if [ -z "$node" ]; then
     sbatch --array=1-$n_runs -o out/%A-%a.out ./training.sh
