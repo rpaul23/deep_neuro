@@ -60,6 +60,6 @@ To get results, just `cd` into the deep_neuro directory and source the
 plots as well. If yes, plots will be stored in 
 `results/training/plots/`.
 
-Example call: `. get_results.sh -u jannesschaefer -s 140123 -n n04`
+Example call: `. get_results.sh -u jannesschaefer -s 141023`
 
 This readme will be appended shortly.
