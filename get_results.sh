@@ -6,18 +6,18 @@ source activate tf
 echo "Do you want to generate plots as well? [y|n]:"
 read bool_plots
 
-while getopts ':a:s:h' flag; do
+while getopts ':u:s:h' flag; do
   case "${flag}" in
-    a) accountname="${OPTARG}" ;;
-	s) session="${OPTARG}" ;;
-	h) printf "Usage: [-a accoutname] [-n node] [-s session] \n" ;;
-	?) printf "Usage: [-a accoutname] [-n node] [-s session] \n" ;;
+    s) session="${OPTARG}" ;;
+	u) user_name="${OPTARG}" ;;
+	h) printf "Usage: [-n node] [-s session] [-u user_name] \n" ;;
+	?) printf "Usage: [-n node] [-s session] [-u user_name] \n" ;;
     *) error "Unexpected option ${flag}" ;;
   esac
 done
 
-python summary.py $session $accountname
+python summary.py $session $user_name
 
 if (( ("$bool_plots" == "y") || ("$bool_plots" == "Y") )); then
-    python plot.py $session $accountname
+    python plot.py $session $user_name
 fi

@@ -5,17 +5,17 @@ source activate tf
 
 while getopts ':a:n:s:h' flag; do
   case "${flag}" in
-    a) accountname="${OPTARG}" ;;
     n) node="${OPTARG}" ;;
 	s) session="${OPTARG}" ;;
-	h) printf "Usage: [-a accoutname] [-n node] [-s session] \n" ;;
-	?) printf "Usage: [-a accoutname] [-n node] [-s session] \n" ;;
+    u) user_name="${OPTARG}" ;;
+	h) printf "Usage: [-n node] [-s session] [-u user_name] \n" ;;
+	?) printf "Usage: [-n node] [-s session] [-u user_name] \n" ;;
     *) error "Unexpected option ${flag}" ;;
   esac
 done
-export accountname
+export $user_name
 
-n_runs="$(python param_gen.py $session $accountname)"
+n_runs="$(python param_gen.py $session user_name)"
 
 if [ -z "$node" ]; then
     sbatch --array=1-$n_runs -o out/%A-%a.out ./training.sh
