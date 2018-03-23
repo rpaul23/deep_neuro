@@ -3,7 +3,7 @@ source deactivate
 source /soft/miniconda3/activate
 source activate tf
 
-while getopts ':a:n:s:h' flag; do
+while getopts ':n:s:u:h' flag; do
   case "${flag}" in
     n) node="${OPTARG}" ;;
 	s) session="${OPTARG}" ;;
