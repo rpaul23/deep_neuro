@@ -17,7 +17,7 @@ while getopts ':u:s:h' flag; do
 done
 
 python summary.py $session $user_name
-
-if (( ("$bool_plots" == "y") || ("$bool_plots" == "Y") )); then
-    python plot.py $session $user_name
-fi
+#
+#if (( ("$bool_plots" == "y") || ("$bool_plots" == "Y") )); then
+#    python plot.py $session $user_name
+#fi
