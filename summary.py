@@ -8,6 +8,7 @@ Created on Wed Dec 20 09:24:46 2017
 
 # imports
 import sys
+import ast
 
 import pandas as pd
 import numpy as np
@@ -41,7 +42,7 @@ acc = df.copy()
 
 # manipulations
 acc['N'] = 1
-acc['acc'] = pd.to_numeric(acc['acc'])
+acc['acc'] = pd.to_numeric(ast.literal_eval(acc['acc']))
 acc['acc_reg'] = pd.to_numeric(acc['acc_reg'])
 acc['var'] = pd.to_numeric(acc['acc'])
 acc['train_accuracy'] = pd.to_numeric(acc['train_accuracy'])
