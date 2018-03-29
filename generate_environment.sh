@@ -11,5 +11,6 @@ mkdir -p data/pre-processed
 mkdir -p data/raw
 mkdir -p results/training/pvals
 mkdir -p results/training/summary
+mkdir -p results/training/plots
 mkdir -p scripts/_params
 mv deep_neuro/ scripts/
