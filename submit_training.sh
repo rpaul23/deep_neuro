@@ -18,7 +18,7 @@ export $user_name
 n_runs="$(python param_gen.py $session $user_name)"
 
 if [ -z "$node" ]; then
-    sbatch --array=1-$n_runs -o out/%A-%a.out ./training.sh
+    sbatch --array=1-$n_runs -o ~/results/out/%A-%a.out ./training.sh
 else
-    sbatch -w $node --array=1-$n_runs -o out/%A-%a.out ./training.sh
+    sbatch -w $node --array=1-$n_runs -o ~/results/out/%A-%a.out ./training.sh
 fi
