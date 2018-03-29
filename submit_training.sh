@@ -13,7 +13,7 @@ while getopts ':n:s:u:h' flag; do
     *) error "Unexpected option ${flag}" ;;
   esac
 done
-export $user_name
+export user_name
 
 n_runs="$(python param_gen.py $session $user_name)"
 
