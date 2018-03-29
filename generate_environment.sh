@@ -12,4 +12,4 @@ mkdir -p data/raw
 mkdir -p results/training/pvals
 mkdir -p results/training/summary
 mkdir -p scripts/_params
-mkdir -p scripts/deep_neuro/
+mv deep_neuro/ scripts/
