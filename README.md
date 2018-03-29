@@ -40,8 +40,8 @@ Example call: `. prep_data.sh -u jannesschaefer -s 141023 -t 500`
 
 ### Train classifier
 To train a classifier, `cd` into your scripts directory and source the submit
-file using `. submit_training.sh -a <accountname> -s <session> -n <node>` where 
-`accountname` refers to your cluster accountname (e. g. `jannesschaefer`) and 
+file using `. submit_training.sh -a <user_name> -s <session> -n <node>` where 
+`user_name` refers to your cluster account name (e. g. `jannesschaefer`) and 
 `session` to the session number that you want to train the classifier on (e. g.
 `141023`). If you want to use a specific node on the cluster, you can use the 
 optional `-n` flag (e. g. `-n n04`). The job will be submitted to the cluster
