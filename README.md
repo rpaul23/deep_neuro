@@ -12,16 +12,14 @@ as well as dealing with the analysis and visualization of the results
 ([monkeyplot module](https://github.com/rpaul23/deep_neuro/tree/master/lib/monkeyplot)).
 
 ### Installation
-To get started, create a folder structure in your project directory using 
-following code:
-```shell
-mkdir -p data/pre-processed data/raw
-mkdir -p results/training/pvals results/training/summary results/training/plots
-mkdir -p scripts/_params scripts/deep_neuro
-```
-Then use `cd scripts/deep_neuro/` to change into your scripts directory and
-clone this repository using `git clone https://github.com/rpaul23/deep_neuro.git`.
+To get started, create a project directory using `mkdir my_project/` and change
+into it (`cd my_project/`). Then clone this repository using 
+`git clone https://github.com/rpaul23/deep_neuro.git`. Once cloned, change into 
+the directory (`cd deep_neuro/`) and source the environment generator file:
 
+`. generate_environment.sh`
+
+This will set up your folder structure and install all required packages. 
 Move raw data into `data/raw/` (and/or already pre-processed data into 
 `data/pre-processed/`) and you should be ready to go.
 
@@ -50,7 +48,6 @@ optional `-n` flag (e. g. `-n n04`). The job will be submitted to the cluster
 and processed once the ressources are available.
 
 Example call: `. submit_training.sh -u jannesschaefer -s 140123 -n n04`
-
 
 ### Get results
 To get results, just `cd` into the deep_neuro directory and source the 
