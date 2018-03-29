@@ -19,9 +19,27 @@ the directory (`cd deep_neuro/`) and source the environment generator file:
 
 `. generate_environment.sh`
 
-This will set up your folder structure and install all required packages. 
+This will set up your folder structure (see below) and install all required packages. 
 Move raw data into `data/raw/` (and/or already pre-processed data into 
 `data/pre-processed/`) and you should be ready to go.
+
+```
+my_project
+|___data
+|   |___raw
+|   |___pre-processed
+|
+|___scripts
+|   |____params
+|   |___deep_neuro (git repo)
+|       |___lib
+|           ...
+|
+|___results
+    |___training
+        |___pvals
+        |___summary
+```
 
 ### Pre-process raw data
 The pre-prossesing parameters are set in `lib/matnpy/matnpy.py`. To pre-process
