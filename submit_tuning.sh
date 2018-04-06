@@ -6,7 +6,7 @@ source activate tf
 while getopts ':n:r:s:u:h' flag; do
   case "${flag}" in
     n) node="${OPTARG}" ;;
-    r) runs="${OPTARG}" ;;
+    r) n_runs="${OPTARG}" ;;
 	s) session="${OPTARG}" ;;
     u) user_name="${OPTARG}" ;;
 	h) printf "Usage: [-n node] [-r n_runs] [-s session] [-u user_name] \n" ;;
@@ -16,8 +16,6 @@ while getopts ':n:r:s:u:h' flag; do
 done
 export user_name
 export session
-
-n_runs = "$((runs))"
 
 if [ -z "$node" ]; then
     sbatch --array=1-$n_runs -o ~/results/out/%A-%a.out ./tuning.sh
