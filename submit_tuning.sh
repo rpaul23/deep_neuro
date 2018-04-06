@@ -1,5 +1,4 @@
-#!/usr/bin/env bash
-
+#!/bin/bash
 source deactivate
 source /soft/miniconda3/activate
 source activate tf
@@ -18,8 +17,10 @@ done
 export user_name
 export session
 
+n_runs = "$((runs))"
+
 if [ -z "$node" ]; then
-    sbatch --array=1-$runs -o ~/results/out/%A-%a.out ./tuning.sh
+    sbatch --array=1-$n_runs -o ~/results/out/%A-%a.out ./tuning.sh
 else
-    sbatch -w $node --array=1-$runs -o ~/results/out/%A-%a.out ./tuning.sh
+    sbatch -w $node --array=1-$n_runs -o ~/results/out/%A-%a.out ./tuning.sh
 fi
