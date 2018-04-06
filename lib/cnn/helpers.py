@@ -46,7 +46,10 @@ def subset_test(test_labels, classes):
     
     batches = {}
     for i in range(classes):
-        curr_ind = np.where(test_labels[:,i] == 1)
+        if test_labels.ndim > 1:
+            curr_ind = np.where(test_labels[:,i] == 1)
+        else:
+            curr_ind = np.where(test_labels == i)
         np.random.shuffle(curr_ind[0])
         curr_batch = curr_ind[0][:min_count]  # use min_count samples per class
         batches[i] = curr_batch
