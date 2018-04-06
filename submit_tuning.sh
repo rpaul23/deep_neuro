@@ -19,7 +19,7 @@ export user_name
 export session
 
 if [ -z "$node" ]; then
-    sbatch --array=1-runs -o ~/results/out/%A-%a.out ./tuning.sh
+    sbatch --array=1-$runs -o ~/results/out/%A-%a.out ./tuning.sh
 else
-    sbatch -w $node --array=1-runs -o ~/results/out/%A-%a.out ./tuning.sh
+    sbatch -w $node --array=1-$runs -o ~/results/out/%A-%a.out ./tuning.sh
 fi
