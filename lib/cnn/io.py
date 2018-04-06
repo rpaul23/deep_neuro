@@ -72,7 +72,7 @@ def get_subset(file_path, target_area, raw_path, elec_type,
         return data, n_chans
 
 def get_targets(decode_for, raw_path, elec_type, n_chans, 
-                only_correct_trials=True):
+                only_correct_trials=True, onehot=True):
     """Gets behavioral responses or stimulus classes from the trial_info file
     and encodes them as one-hot.
     
@@ -121,9 +121,12 @@ def get_targets(decode_for, raw_path, elec_type, n_chans,
     # times as there are electrodes in the area.
     if elec_type == 'single':
         targets = np.repeat(targets, n_chans, axis=0)
-    
-    # Convert to one-hot, return
-    return np.eye(classes)[targets].reshape(targets.shape[0], classes)
+
+    if onehot == True:
+        # Convert to one-hot, return
+        return np.eye(classes)[targets].reshape(targets.shape[0], classes)
+    else:
+        return targets.flatten()
     
     
 def get_preprocessed(file_path):
