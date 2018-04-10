@@ -13,7 +13,7 @@ user_name = sys.argv[2]
 session = sys.argv[3]
 kernel = sys.argv[4]
 
-base_path = '~/' + user_name + '/'  # '/Users/jannes/Projects/Marseille/'
+base_path = '/home/' + user_name + '/'  # '/Users/jannes/Projects/Marseille/'
 params = {
     'intervals': ['sample_500', 'delay_500'],
     'C': [1, 10, 50, 100, 200, 500, 1000],
