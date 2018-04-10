@@ -5,8 +5,8 @@ import pandas as pd
 from sklearn.svm import SVC
 from sklearn.model_selection import train_test_split
 
-import io as io
-import helpers as hlp
+from . import io as io
+from . import helpers as hlp
 
 counter = int(sys.argv[1])
 user_name = sys.argv[2]
