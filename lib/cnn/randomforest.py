@@ -11,7 +11,7 @@ import helpers as hlp
 counter = int(sys.argv[1])
 user_name = sys.argv[2]
 session = sys.argv[3]
-base_path = 'home/' + user_name + '/'
+base_path = '~/' + user_name + '/'
 params = {
     'intervals': ['sample_500', 'delay_500'],
     'n_trees': [10, 20, 50, 100, 250, 500, 1000, 5000, 10000]
