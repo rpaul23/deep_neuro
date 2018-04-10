@@ -5,8 +5,8 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
-import lib.cnn.io as io
-import lib.cnn.helpers as hlp
+import io as io
+import helpers as hlp
 
 counter = int(sys.argv[1])
 user_name = sys.argv[2]
