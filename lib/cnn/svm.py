@@ -5,7 +5,7 @@ import pandas as pd
 from sklearn.svm import SVC
 from sklearn.model_selection import train_test_split
 
-import io as io
+import myio as io
 import helpers as hlp
 
 counter = int(sys.argv[1])
