@@ -21,7 +21,8 @@ params = {
     }
 
 ind_interval = 0 if counter < len(params['C']) * len(params['gamma']) else 1
-ind_c = int(np.floor(counter/len(params['gamma'])))
+temp = counter if ind_interval == 0 else counter - 49
+ind_c = int(np.floor(temp/len(params['gamma'])))
 ind_gamma = counter % len(params['gamma'])
 
 interval = params['intervals'][ind_interval]
