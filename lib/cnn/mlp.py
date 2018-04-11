@@ -23,7 +23,7 @@ def evaluate_classif(clf, x_test, y_test):
     """Evaluates MLP classifier against test data."""
     return np.mean(clf.predict(x_test) == y_test)
 
-counter = sys.argv[1‚]
+counter = sys.argv[1]
 base_path = '/home/jannesschaefer/'
 data_path = base_path + 'data/pre-processed/sample_500/'
 raw_path = base_path + 'data/raw/141023/session01/'
@@ -68,7 +68,7 @@ test_size = .2
 seed = np.random.randint(1,10000)
 indices = np.arange(data.shape[0])
 
-for i in range(10):
+for i in range(5):
     train, test, train_labels, test_labels, idx_train, idx_test = (
             train_test_split(
                 data,
