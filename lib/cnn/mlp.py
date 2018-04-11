@@ -69,7 +69,7 @@ test_size = .2
 seed = np.random.randint(1,10000)
 indices = np.arange(data.shape[0])
 
-for i in range(3):
+for i in range(5):
     train, test, train_labels, test_labels, idx_train, idx_test = (
             train_test_split(
                 data,
