@@ -18,7 +18,7 @@ params = {
     }
 
 ind_interval = 0 if counter < len(params['n_trees']) else 1
-ind_n = int(np.floor(counter/len(params['n_trees'])))
+ind_n = counter % len(params['n_trees'])
 
 interval = params['intervals'][ind_interval]
 n_trees = params['n_trees'][ind_n]
