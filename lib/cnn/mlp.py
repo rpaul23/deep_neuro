@@ -5,8 +5,7 @@ from sklearn.model_selection import train_test_split
 import myio as io
 import helpers as hlp
 
-layer_sizes = (3, 6, 12, 36, 72, 256, 500)
-def train_classif(x_train, y_train, activation='relu'):
+def train_classif(x_train, y_train, layer_sizes, activation='relu'):
     """Trains a multi-layer perceptron."""
     clf = MLPClassifier(hidden_layer_sizes=layer_sizes,
                         activation=activation,
@@ -14,7 +13,7 @@ def train_classif(x_train, y_train, activation='relu'):
                         alpha=10,
                         batch_size=50,
                         learning_rate_init=1e-5,
-                        max_iter=100)
+                        max_iter=200)
     clf.fit(x_train, y_train)
     return clf
 
@@ -50,6 +49,7 @@ train_size = .8
 test_size = .2
 seed = np.random.randint(1,10000)
 indices = np.arange(data.shape[0])
+layer_sizes = (50)
 
 for i in range(10):
     train, test, train_labels, test_labels, idx_train, idx_test = (
@@ -66,6 +66,6 @@ for i in range(10):
     x_test = test.reshape(test.shape[0], -1)
     y_test = test_labels.reshape(-1)
 
-    clf = train_classif(x_train, y_train)
+    clf = train_classif(x_train, y_train, layer_sizes=layer_sizes)
     acc = evaluate_classif(clf, x_test, y_test)
     print(i, acc)
