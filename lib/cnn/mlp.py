@@ -5,9 +5,10 @@ from sklearn.model_selection import train_test_split
 import myio as io
 import helpers as hlp
 
-def train_classif(x_train, y_train, n_layers=6, activation='relu'):
+layer_sizes = (3, 6, 12, 36, 72, 256, 500)
+def train_classif(x_train, y_train, activation='relu'):
     """Trains a multi-layer perceptron."""
-    clf = MLPClassifier(hidden_layer_sizes=(n_layers,),
+    clf = MLPClassifier(hidden_layer_sizes=layer_sizes,
                         activation=activation,
                         solver='adam',
                         alpha=10,
