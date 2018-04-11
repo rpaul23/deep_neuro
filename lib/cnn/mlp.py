@@ -89,10 +89,10 @@ for i in range(3):
                         alpha=alpha,
                         batch_size=batch_size)
     acc = evaluate_classif(clf, x_test, y_test)
-    df = pd.DataFrame({'batch_size': batch_size,
-                       'alpha': alpha,
+    df = pd.DataFrame({'batch_size': [batch_size],
+                       'alpha': [alpha],
                        'layers': str(layer_sizes),
-                       'acc': acc})
+                       'acc': [acc]})
     df = df[['batch_size', 'alpha', 'layers', 'acc']]
     # Save to file
     with open(file_out, 'a') as f:
