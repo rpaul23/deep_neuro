@@ -390,5 +390,5 @@ df = pd.DataFrame([data],
 
 # Save to file
 with open(base_path + 'results/training/'
-          + sess_no + '_training_test.csv', 'a') as f:
+          + sess_no + '_training_allmodels.csv', 'a') as f:
    df.to_csv(f, index=False, header=False)
