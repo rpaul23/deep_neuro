@@ -19,8 +19,28 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 
 import lib.cnn.io as io
-import lib.cnn.cnn as cnn
 import lib.cnn.helpers as hlp
+import lib.cnn.cnn as cnn
+import lib.cnn.svm as svm
+import lib.cnn.randomforest as rdf
+import lib.cnn.mlp as mlp
+
+#############
+# CONSTANTS #
+#############
+
+C_LINEAR = 200
+C_RBF = 500
+GAMMA_LINEAR = 5000
+GAMMA_RBF = 1000
+N_TREES = 1000
+LAYER_SIZES = (50,20)
+ALPHA = 50
+BATCH_SIZE = 50
+
+#########
+# PATHS #
+#########
 
 param_index = int(sys.argv[1])
 base_path = '/home/' + sys.argv[2] + '/'
@@ -40,7 +60,6 @@ curr_str_to_print = curr_params[4]
 # PARAMS #
 ##########
 
-# global params
 sess_no = curr_sess_no
 interval = curr_int  # Ex.: 'sample_500'
 target_area = curr_area
@@ -132,7 +151,8 @@ data, n_chans = io.get_subset(file_path, target_area, raw_path,
                               elec_type, return_nchans=True, 
                               only_correct_trials=only_correct_trials)
 targets = io.get_targets(decode_for, raw_path, elec_type, n_chans,
-                         only_correct_trials=only_correct_trials)
+                         only_correct_trials=only_correct_trials,
+                         onehot=True)
 
 # train/test params
 samples_per_trial = data.shape[2]
@@ -165,7 +185,7 @@ ind_test = hlp.subset_test(test_labels, classes)
 ##########
 
 # placeholders
-x = tf.placeholder(tf.float32, shape=[
+x_ = tf.placeholder(tf.float32, shape=[
         None, n_chans, samples_per_trial
         ])
 y_ = tf.placeholder(tf.float32, shape=[None, classes])
@@ -175,7 +195,7 @@ keep_prob = tf.placeholder(tf.float32)
 # Network
 out, weights = cnn.create_network(
         n_layers=n_layers, 
-        x_in=x, 
+        x_in=x_,
         n_in=channels_in, 
         n_out=channels_out, 
         patch_dim=patch_dim,
@@ -255,14 +275,15 @@ accuracy_reg = tf.reduce_mean(tf.cast(correct_prediction_reg, tf.float32))
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
-    
+
     # Number of batches to train on
     for i in range(n_iterations):
         ind_train = hlp.subset_train(train_labels, classes, size_of_batches)
+
         # Every n iterations, print training accuracy
         if i % 10 == 0:
             train_accuracy = accuracy.eval(feed_dict={
-                    x: train[ind_train,:,:],
+                    x_: train[ind_train,:,:],
                     y_: train_labels[ind_train,:],
                     keep_prob: 1.0
                     })
@@ -270,60 +291,100 @@ with tf.Session() as sess:
                     i, train_accuracy))
   
         # Training
+        curr_x = train[ind_train,:,:]
+        curr_y = train_labels[ind_train,:]
         train_step.run(feed_dict={
-                x: train[ind_train,:,:], 
-                y_: train_labels[ind_train,:],
+                x_: curr_x,
+                y_: curr_y,
                 keep_prob: keep_prob_train
                 })
         train_step_reg.run(feed_dict={
-            x_reg: train[ind_train, :, :].reshape(
+            x_reg: curr_x.reshape(
                 len(ind_train), -1),
-            y_reg: train_labels[ind_train, :].reshape(
+            y_reg: curr_y.reshape(
                 len(ind_train), -1)
         })
 
+    # Train SVM
+    curr_x_train = train.reshape(train.shape[0], -1)
+    curr_y_train = train_labels.reshape(train.shape[0], -1)
+    clf_lin = svm.train_classif(x_train=curr_x_train,
+                                y_train=curr_y_train,
+                                kernel='linear',
+                                c=C_LINEAR,
+                                gamma=GAMMA_LINEAR)
+    clf_rbf = svm.train_classif(x_train=curr_x_train,
+                                y_train=curr_y_train,
+                                kernel='rbf',
+                                c=C_RBF,
+                                gamma=GAMMA_RBF)
+    # Train Random forest
+    clf_rdf = rdf.train_classif(x_train=curr_x_train,
+                                y_train=curr_y_train,
+                                n_trees=N_TREES)
+    # Train MLP
+    clf_mlp = mlp.train_classif(x_train=curr_x_train,
+                                y_train=curr_y_train,
+                                layer_sizes=LAYER_SIZES,
+                                alpha=ALPHA,
+                                batch_size=BATCH_SIZE)
+
     # Print test accuracy
-    acc = accuracy.eval(feed_dict={
-            x: test[ind_test,:,:],
-            y_: test_labels[ind_test,:],
+    curr_x_test = test[ind_test,:,:]
+    curr_y_test = test_labels[ind_test,:]
+    acc_cnn = accuracy.eval(feed_dict={
+            x_: curr_x_test,
+            y_: curr_y_test,
             keep_prob: 1.0
             })
     acc_reg = accuracy_reg.eval(feed_dict={
-        x_reg: test[ind_test, :, :].reshape(len(ind_test), -1),
-        y_reg: test_labels[ind_test, :].reshape(len(ind_test), -1)
+        x_reg: curr_x_test.reshape(len(ind_test), -1),
+        y_reg: curr_y_test.reshape(len(ind_test), -1)
     })
+    acc_svm_lin = svm.eval_classif(clf=clf_lin,
+                                   x_test=curr_x_test.reshape(len(ind_test), -1),
+                                   y_test=curr_y_test.reshape(len(ind_test), -1))
+    acc_svm_rbf = svm.eval_classif(clf=clf_rbf,
+                                   x_test=curr_x_test.reshape(len(ind_test), -1),
+                                   y_test=curr_y_test.reshape(len(ind_test), -1))
+    acc_rdf = rdf.eval_classif(clf=clf_rdf,
+                               x_test=curr_x_test.reshape(len(ind_test), -1),
+                               y_test=curr_y_test.reshape(len(ind_test), -1))
+    acc_mlp = mlp.evaluate_classif(clf=clf_mlp,
+                                   x_test=curr_x_test.reshape(len(ind_test), -1),
+                                   y_test=curr_y_test.reshape(len(ind_test), -1))
+
     probs = softmax_probs.eval(feed_dict={
-            x: test[ind_test,:,:],
-            y_: test_labels[ind_test,:],
+            x_: curr_x_test,
+            y_: curr_y_test,
             keep_prob: 1.0
             })
-    print('test accuracy: CNN %g, Regression %g' % (acc, acc_reg))
-    
+    print('test accuracy: CNN %g, Regression %g' % (acc_cnn, acc_reg))
+
     # Get size of weights
     size_weights = sess.run(weights_shape)
-
 
 #################
 # DOCUMENTATION #
 #################
 
 time = str(datetime.datetime.now())
-data = [acc_reg, acc, n_iterations, size_of_batches, 
-        l2_regularization_penalty, learning_rate, str(patch_dim), 
-        str(pool_dim), str(channels_out), fc_units, dist, batch_norm, 
-        nonlin, str(target_area), normalized_weights, 
-        only_correct_trials, 0, train_accuracy, keep_prob_train, 
+data = [acc_reg, acc_svm_lin, acc_svm_rbf, acc_rdf, acc_cnn, n_iterations,
+        size_of_batches, l2_regularization_penalty, learning_rate,
+        str(patch_dim), str(pool_dim), str(channels_out), fc_units, dist,
+        batch_norm, nonlin, str(target_area), normalized_weights,
+        only_correct_trials, 0, train_accuracy, keep_prob_train,
         n_layers, time, probs, test_labels[ind_test,:], idx_test[ind_test],
         sess_no, interval, decode_for]
-df = pd.DataFrame([data], 
-                  columns=['acc_reg', 'acc', 'iterations', 
-                           'batch_size', 'l2 penalty', 
-                           'learning_rate', 'patch_dim', 'pool_dim', 
-                           'output_channels', 'fc_units', 'dist', 
-                           'time_of_BN', 'nonlinearity', 'area','std', 
-                           'only_correct_trials', 'empty', 
-                           'train_accuracy', 'keep_prob', 'n_layers', 
-                           'time', 'probs', 'test_labels', 
+df = pd.DataFrame([data],
+                  columns=['acc_reg', 'acc_svm_lin', 'acc_svm_rbf', 'acc_rdf',
+                           'acc_cnn', 'iterations', 'batch_size', 'l2 penalty',
+                           'learning_rate', 'patch_dim', 'pool_dim',
+                           'output_channels', 'fc_units', 'dist',
+                           'time_of_BN', 'nonlinearity', 'area','std',
+                           'only_correct_trials', 'empty',
+                           'train_accuracy', 'keep_prob', 'n_layers',
+                           'time', 'probs', 'test_labels',
                            'test_indices', 'session', 'interval', 'decode_for'],
                   index=[0])
 
