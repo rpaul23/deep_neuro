@@ -84,6 +84,7 @@ file_out = (sess_no
 if not os.path.exists(dir_out):
     os.makedirs(dir_out)
 np.save(dir_out + file_out, filtered)
+print('Successfully saved ' + file_out)
 
 # LOOP OVER MULTIPLE INTERVALS COMMENTED OUT
 # # Define and loop over intervals
