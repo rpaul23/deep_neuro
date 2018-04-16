@@ -4,8 +4,8 @@ import os
 
 import numpy as np
 
-import lib.io as io
-import lib.preprocess as pp
+import io as io
+import preprocess as pp
 
 # Passed params
 sess_no = sys.argv[1]

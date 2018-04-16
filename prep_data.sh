@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+source deactivate
+source /soft/miniconda3/activate
+source activate tf
+
 while getopts ':a:f:l:s:t:u:h' flag; do
   case "${flag}" in
     a) align_on="${OPTARG}" ;;

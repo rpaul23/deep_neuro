@@ -8,7 +8,7 @@ Created on Tue Dec 19 14:33:12 2017
 import numpy as np
 from scipy.signal import butter, lfilter
 
-import lib.io as io
+import matnpyio as io
 
 def strip_data(data, rinfo_path, onset, start, length=500):
     """Strips data to relevant interval defined by start (relative to onset) and
