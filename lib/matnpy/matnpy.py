@@ -14,6 +14,7 @@ align_on = sys.argv[3]
 from_time = int(sys.argv[4])
 to_time = int(sys.argv[5])
 trial_length = abs(from_time - to_time)
+print(sess_no + '_' + align_on + 'from' + str(from_time) + 'to' + str(to_time))
 
 # Filter params
 lowcut = 5
