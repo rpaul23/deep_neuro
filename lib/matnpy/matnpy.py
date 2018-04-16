@@ -72,17 +72,17 @@ while trial_counter < last_trial:
         print('No file ' + file_in)
     trial_counter += 1
 
-    # Store data
-    filtered = np.array(filtered)
-    dir_out = prep_path + 'intervals' + '/'
-    file_out = (sess_no
-                + '_from' + str(from_time)
-                + 'to' + str(to_time)
-                + '_alignon_' + align_on
-                + '.npy')
-    if not os.path.exists(dir_out):
-        os.makedirs(dir_out)
-    np.save(dir_out + file_out, filtered)
+# Store data
+filtered = np.array(filtered)
+dir_out = prep_path + 'intervals' + '/'
+file_out = (sess_no
+            + '_from' + str(from_time)
+            + 'to' + str(to_time)
+            + '_alignon_' + align_on
+            + '.npy')
+if not os.path.exists(dir_out):
+    os.makedirs(dir_out)
+np.save(dir_out + file_out, filtered)
 
 # LOOP OVER MULTIPLE INTERVALS COMMENTED OUT
 # # Define and loop over intervals
