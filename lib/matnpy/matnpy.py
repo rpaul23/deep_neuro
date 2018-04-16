@@ -4,15 +4,15 @@ import os
 
 import numpy as np
 
-import io as io
+import matnpyio as io
 import preprocess as pp
 
 # Passed params
 sess_no = sys.argv[1]
 user_name = sys.argv[2]
 align_on = sys.argv[3]
-from_time = sys.argv[4]
-to_time = sys.argv[5]
+from_time = int(sys.argv[4])
+to_time = int(sys.argv[5])
 trial_length = abs(from_time - to_time)
 
 # Filter params
