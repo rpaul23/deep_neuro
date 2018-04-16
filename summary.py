@@ -42,7 +42,7 @@ cols_to_numeric = ['acc_reg', 'acc_svm_lin', 'acc_svm_rbf', 'acc_rdf',
                    'acc_cnn']
 # paths
 file_path = '/home/' + accountname + '/results/training/'
-file_name = sess_no + '_training_test.csv'
+file_name = sess_no + '_training_allmodels.csv'
 
 # read file
 df = pd.read_csv(file_path + file_name, header=None, names=columns)
