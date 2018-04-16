@@ -76,9 +76,9 @@ while trial_counter < last_trial:
 filtered = np.array(filtered)
 dir_out = prep_path + 'intervals' + '/'
 file_out = (sess_no
-            + '_from' + str(from_time)
+            + '_' + align_on
+            + 'from' + str(from_time)
             + 'to' + str(to_time)
-            + '_alignon_' + align_on
             + '.npy')
 if not os.path.exists(dir_out):
     os.makedirs(dir_out)
