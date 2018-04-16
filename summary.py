@@ -15,6 +15,7 @@ from scipy.stats import ttest_1samp
 
 def metrics(values, pop_mean):
     """Returns mean, pvals (1-sample t-test) and sign for array of values."""
+    values = np.array(values).astype('float')
     mean = np.mean(values)
     _, p = ttest_1samp(values, pop_mean)
     sign = '***' if p < .001 else '**' if p < .01 else '*' if p < .05 else 0
@@ -38,8 +39,12 @@ cols_to_groupby = ['iterations', 'batch_size', 'l2_penalty', 'learning_rate',
                    'dist', 'time_of_bn', 'nonlinearity', 'area', 'std',
                    'only_correct_trials', 'keep_prob', 'n_layers',
                    'decode_for', 'interval', 'session']
-cols_to_numeric = ['acc_reg', 'acc_svm_lin', 'acc_svm_rbf', 'acc_rdf',
+cols_to_numeric = ['train_accuracy', 'acc_reg', 'acc_svm_lin', 'acc_svm_rbf', 'acc_rdf',
                    'acc_cnn']
+cols_new = cols_to_groupby.copy()
+[cols_new.append(el) for el in ['var', 'N']]
+[cols_new.append(el) for el in cols_to_numeric]
+
 # paths
 file_path = '/home/' + accountname + '/results/training/'
 file_name = sess_no + '_training_allmodels.csv'
@@ -52,7 +57,6 @@ acc = df.copy()
 acc['N'] = 1
 acc[cols_to_numeric] = acc[cols_to_numeric].apply(pd.to_numeric, errors='coerce')
 acc['var'] = pd.to_numeric(acc['acc_cnn'])
-acc['train_accuracy'] = pd.to_numeric(acc['train_accuracy'])
 
 # aggregate on columns
 acc = acc.groupby(cols_to_groupby).agg({
@@ -64,10 +68,10 @@ acc = acc.groupby(cols_to_groupby).agg({
     'acc_rdf': np.mean,
     'acc_reg': np.mean,
     'N': np.count_nonzero
-})
+}).reset_index()
 
 # save file
-acc = acc.sort_values(by=['acc_cnn'], ascending=False)
+acc = acc[cols_new].sort_values(by=['acc_cnn'], ascending=False).reset_index(drop=True)
 acc.to_csv(file_path + 'summary/' + sess_no + '_training_summary_allmodels.csv',
            float_format='%.6f')
 
