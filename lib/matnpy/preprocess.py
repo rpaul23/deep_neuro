@@ -10,7 +10,7 @@ from scipy.signal import butter, lfilter
 
 import lib.io as io
 
-def strip_data(data, rinfo_path, onset, start=-500, length=500):
+def strip_data(data, rinfo_path, onset, start, length=500):
     """Strips data to relevant interval defined by start (relative to onset) and
     length.
     
@@ -29,7 +29,7 @@ def strip_data(data, rinfo_path, onset, start=-500, length=500):
     data = drop_trail(data, srate, length)
     return data
 
-def drop_lead(raw, srate, onset, start=-500):
+def drop_lead(raw, srate, onset, start):
     """Drops all samples before start parameter (in ms, relative to onset).
     
     Args:
