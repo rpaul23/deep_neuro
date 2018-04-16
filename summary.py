@@ -50,7 +50,7 @@ acc = df.copy()
 
 # manipulations
 acc['N'] = 1
-acc[cols_to_numeric] = pd.to_numeric(acc[cols_to_numeric])
+acc[cols_to_numeric] = acc[cols_to_numeric].apply(pd.to_numeric, errors='coerce')
 acc['var'] = pd.to_numeric(acc['acc_cnn'])
 acc['train_accuracy'] = pd.to_numeric(acc['train_accuracy'])
 
