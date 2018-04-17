@@ -60,7 +60,6 @@ for decode_for in decoders:
                     session, decode_for, interval, area,
                     runs_per_combination-i, str(count), str(total_runs))
                 params = [session, decode_for, area, interval, print_str]
-                print(params)
                 with open(path_out, 'a') as f:
                     f.write('\n' + str(params))
 
