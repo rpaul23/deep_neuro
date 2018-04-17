@@ -129,9 +129,9 @@ channels_out = [out1, out2, out3, out4, out5, out6, out7, out8][:n_layers]
 # PATHS #
 #########
 
-data_path = base_path + 'data/pre-processed/' + interval + '/'
+data_path = base_path + 'data/pre-processed/intervals/'
 raw_path = base_path + 'data/raw/' + sess_no + '/session01/'
-file_name = sess_no + '_freq1000low5hi450order3.npy'
+file_name = sess_no + '_' + interval + '.npy'
 file_path = data_path + file_name
 rinfo_path = raw_path + 'recording_info.mat'
 tinfo_path = raw_path + 'trial_info.mat'

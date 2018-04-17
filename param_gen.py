@@ -37,8 +37,11 @@ path_out = base_path + 'scripts/_params/training.txt'
 
 # Params
 decoders = ['resp', 'stim']
-intervals = ['pre-sample_500', 'sample_500', 'delay_500', 'pre-match_500',
-             'match_500']
+intervals = ['matchfrom-800to-300', 'matchfrom-700to-200',
+             'matchfrom-600to-100', 'matchfrom-500to0', 'stimfrom0to500',
+             'stimfrom100to600', 'stimfrom200to700', 'stimfrom300to800',
+             'stimfrom400to900', 'stimfrom500to1000', 'stimfrom600to1100',
+             'stimfrom700to1200', 'stimfrom800to1300']
 areas = get_area_names(rinfo_path)
 areas = [[el] for el in areas]
 runs_per_combination = 10
@@ -57,6 +60,7 @@ for decode_for in decoders:
                     session, decode_for, interval, area,
                     runs_per_combination-i, str(count), str(total_runs))
                 params = [session, decode_for, area, interval, print_str]
+                print(params)
                 with open(path_out, 'a') as f:
                     f.write('\n' + str(params))
 
