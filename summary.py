@@ -26,8 +26,13 @@ sess_no = sys.argv[1]
 accountname = sys.argv[2]
 decoders = ['stim', 'resp']
 intervals = ['pre-sample_500', 'sample_500', 'delay_500', 'pre-match_500',
-             'match_500']
-
+             'match_500',
+             'matchfrom-800to-300', 'matchfrom-700to-200',
+             'matchfrom-600to-100', 'matchfrom-500to0', 'stimfrom0to500',
+             'stimfrom100to600', 'stimfrom200to700', 'stimfrom300to800',
+             'stimfrom400to900', 'stimfrom500to1000', 'stimfrom600to1100',
+             'stimfrom700to1200', 'stimfrom800to1300'
+             ]
 columns = ['acc_reg', 'acc_svm_lin', 'acc_svm_rbf', 'acc_rdf', 'acc_cnn',
            'iterations', 'batch_size', 'l2_penalty', 'learning_rate',
            'patch_dim', 'pool_dim', 'output_channels', 'fc_units', 'dist',
