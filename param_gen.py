@@ -44,6 +44,11 @@ intervals = ['matchfrom-800to-300', 'matchfrom-700to-200',
              'stimfrom700to1200', 'stimfrom800to1300']
 areas = get_area_names(rinfo_path)
 areas = [[el] for el in areas]
+groups = [['V1', 'V2', 'V4t', 'V6A', 'DP', 'MT'],
+          ['a5', 'AIP', 'LIP', 'a7A', 'a7B', 'TPt'],
+          ['a1', 'a2', 'a3'],
+          ['F1', 'F2', 'F6', 'F7']]
+
 runs_per_combination = 10
 total_runs = len(decoders) * len(intervals) * len(areas) * runs_per_combination
 
@@ -53,7 +58,7 @@ with open(path_out, 'w') as f:
 count = total_runs + 1
 for decode_for in decoders:
     for interval in intervals:
-        for area in areas:
+        for area in groups:
             for i in range(runs_per_combination):
                 count -= 1
                 print_str = '{}, {}, {}: {}, {}/10. Total: {}/{}'.format(
