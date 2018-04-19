@@ -50,8 +50,11 @@ while trial_counter < last_trial:
     if np.isnan(onset):  # drop trials for which there is no onset info
         print('No onset for ' + file_in)
         trial_counter += 1
-        counter += 1
-        continue
+        if trial_counter == last_trial:
+            break
+        else:
+            counter += 1
+            continue
     print(file_in)
     try:
         raw = io.get_data(raw_path + file_in)
