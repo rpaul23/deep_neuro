@@ -52,7 +52,7 @@ groups = [['V1', 'V2', 'V4t', 'V6A', 'DP', 'MT'],
 [areas.append(el) for el in groups]
 
 runs_per_combination = 10
-total_runs = len(decoders) * len(intervals) * len(groups) * runs_per_combination
+total_runs = len(decoders) * len(intervals) * len(areas) * runs_per_combination
 
 # Append to file
 with open(path_out, 'w') as f:
