@@ -47,9 +47,9 @@ areas = [[el] for el in areas]
 # groups = [['V1', 'V2', 'V4t', 'V6A', 'DP', 'MT'],
 #           ['a5', 'AIP', 'LIP', 'a7A', 'a7B', 'TPt'],
 #           ['a1', 'a2', 'a3'],
-#           ['a45B', 'a8B', 'a8L', 'a8M', 'a8r', 'a9/46D'],
+#           ['a24c', 'a44', 'a45B', 'a8B', 'a8L', 'a8M', 'a8r', 'a46D'],
 #           ['F1', 'F2', 'F6', 'F7']]
-groups = [['a45B', 'a8B', 'a8L', 'a8M', 'a8r', 'a9/46D']]
+groups = [['a24c', 'a44', 'a45B', 'a8B', 'a8L', 'a8M', 'a8r', 'a46D']]
 
 runs_per_combination = 10
 total_runs = len(decoders) * len(intervals) * len(groups) * runs_per_combination
