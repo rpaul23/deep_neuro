@@ -53,7 +53,7 @@ intervals = ['matchfrom-800to-300', 'matchfrom-700to-200',
 
 # Temp test stim + visual cortex only
 decoders = ['stim']
-areas = ['V1', 'V2', 'V4t', 'V6A', 'DP', 'MT', ['V1', 'V2', 'V4t', 'V6A', 'DP', 'MT']]
+areas = [['V1', 'V2', 'LIP']]
 
 runs_per_combination = 10
 total_runs = len(decoders) * len(intervals) * len(areas) * runs_per_combination
