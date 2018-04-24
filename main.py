@@ -70,10 +70,10 @@ only_correct_trials = False  # if pre-sample, only look at correct trials
 if decode_for == 'stim':
 
     # hyper params
-    n_iterations = 200
-    size_of_batches = 100
+    n_iterations = 100
+    size_of_batches = 50
     dist = 'random_normal'
-    batch_norm = 'after'
+    batch_norm = 'renorm'  # 'after'
     nonlin = 'elu'
     normalized_weights = True
     learning_rate = 1e-5
@@ -97,8 +97,8 @@ if decode_for == 'stim':
 else:
     
     # hyper params
-    n_iterations = 200
-    size_of_batches = 100
+    n_iterations = 100
+    size_of_batches = 50
     dist = 'random_normal'
     batch_norm = 'after'
     nonlin = 'elu'

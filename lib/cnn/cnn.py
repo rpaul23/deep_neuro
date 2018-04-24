@@ -184,7 +184,8 @@ def elu_batch(x_in, n_in, n_out, patch_dim, pool_dim, training, n_chans,
                 center=True,
                 scale=True,
                 is_training=training,
-                decay=DECAY)
+                decay=DECAY,
+                renorm=True)
         maxp_bn_elu = max_pool(cnn_bn_elu, pool_dim)
     else:
         maxp_bn_elu = max_pool(cnn_elu, pool_dim)
@@ -317,7 +318,8 @@ def fully_connected(x_in, bn, units, training, nonlin='leaky_relu',
                     center=True,
                     scale=True,
                     is_training=training,
-                    decay=DECAY)
+                    decay=DECAY,
+                    renorm=True)
         else:
             raise ValueError('Non-linearity "' + nonlin + '" not supported.')
     else:
